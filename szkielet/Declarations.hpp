@@ -11,4 +11,7 @@ const Color CROSS = "blue";
 const Color CIRCLE = "pink";
 const Color NONE = "";
 
+typedef std::vector<std::vector<Color> > Board;
+
+
 #endif // PROJECT_DECLARATIONS_HPP
