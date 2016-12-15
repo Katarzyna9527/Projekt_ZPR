@@ -13,7 +13,7 @@ int shipLength_;
 bool isAlive_;
 bool damages[4];
 
-
+Ship();
 Ship(int x, int y, std::string direction, int shipLength, bool isAlive);
 
 void checkComponentDamages(int x, int y);
