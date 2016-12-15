@@ -14,8 +14,7 @@ bool isAlive_;
 bool damages[4];
 
 
-//virtual Ship(int x, int y, std::string direction, int shipLength, bool isAlive) = 0 
-Ship(int x, int y, std::string direction, int shipLength, bool isAlive = true) : x_(x), y_(y), direction_(direction), shipLength_(shipLength){};
+Ship(int x, int y, std::string direction, int shipLength, bool isAlive);
 
 void checkComponentDamages(int x, int y);
 
