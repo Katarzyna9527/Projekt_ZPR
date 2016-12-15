@@ -9,13 +9,13 @@ public:
 int id_;
 std::string name_;
 Color color_;
-bool victory_;
 bool active_;
 std::vector<Ship> vectorOfShips; 
 
- 
-Player(int id, std::string name, std::string color, bool victory, bool active);
+Player();
+Player(int id, std::string name, std::string color, bool active);
 Ship setShip(int length);//funkcja określa położenie nowego statku, działa do skutku
+bool amIDead();
 
 
 };
