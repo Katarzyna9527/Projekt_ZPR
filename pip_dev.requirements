@@ -1,0 +1,7 @@
+Django==1.8.4
+gunicorn==19.3
+coverage==3.7.1
+psycopg2==2.6.1
+
+
+

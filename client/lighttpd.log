@@ -1,0 +1,26 @@
+2016-12-04 22:52:39: (log.c.164) server started 
+2016-12-04 22:53:11: (server.c.1558) server stopped by UID = 1000 PID = 2549 
+2016-12-04 23:07:38: (log.c.164) server started 
+2016-12-04 23:07:45: (server.c.1558) server stopped by UID = 1000 PID = 2807 
+2016-12-05 01:48:49: (log.c.164) server started 
+2016-12-05 01:50:56: (server.c.1558) server stopped by UID = 1000 PID = 4289 
+2016-12-09 19:36:32: (log.c.164) server started 
+2016-12-09 19:39:27: (server.c.1558) server stopped by UID = 1000 PID = 2440 
+2016-12-10 22:41:59: (log.c.164) server started 
+2016-12-11 00:41:59: (server.c.1558) server stopped by UID = 1000 PID = 24134 
+2016-12-11 00:45:20: (log.c.164) server started 
+2016-12-11 00:55:44: (server.c.1558) server stopped by UID = 1000 PID = 24643 
+2016-12-11 01:37:45: (log.c.164) server started 
+2016-12-11 01:38:26: (server.c.1558) server stopped by UID = 1000 PID = 25478 
+2016-12-11 01:38:51: (log.c.164) server started 
+2016-12-11 01:39:47: (server.c.1558) server stopped by UID = 1000 PID = 25749 
+2016-12-11 01:39:56: (log.c.164) server started 
+2016-12-11 01:40:09: (server.c.1558) server stopped by UID = 1000 PID = 25999 
+2016-12-11 01:40:32: (log.c.164) server started 
+2016-12-11 01:40:52: (server.c.1558) server stopped by UID = 1000 PID = 26273 
+2016-12-11 01:41:18: (log.c.164) server started 
+2016-12-11 01:46:19: (server.c.1558) server stopped by UID = 1000 PID = 26655 
+2016-12-11 02:06:31: (log.c.164) server started 
+2016-12-11 02:07:37: (server.c.1558) server stopped by UID = 1000 PID = 2397 
+2016-12-11 02:17:00: (log.c.164) server started 
+2016-12-11 02:17:30: (server.c.1558) server stopped by UID = 1000 PID = 3520 
