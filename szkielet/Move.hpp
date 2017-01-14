@@ -14,7 +14,6 @@ Move();
 Move(int x, int y, Color color) : x_(x), y_(y), color_(color) {}
 void setPoint(int x, int y, Color color){ x_ = x; y_ = y; color_ = color;};
 
-
 };
 
 

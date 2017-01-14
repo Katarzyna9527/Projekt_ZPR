@@ -5,13 +5,9 @@
 #include <vector>
 #include <cstdlib>
 
-// variables which represents color of the ship on a board
-typedef std::string Color;
-const Color CROSS = "blue";
-const Color CIRCLE = "pink";
-const Color NONE = "";
+const int BOARD_SIZE = 10;
 
-typedef std::vector<std::vector<Color> > Board;
-
+enum Color {PINK,BLUE};
+enum Direction {RIGHT,DOWN};
 
 #endif // PROJECT_DECLARATIONS_HPP
