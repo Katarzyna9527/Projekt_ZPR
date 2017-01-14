@@ -1,5 +1,10 @@
 sudo su postgres
-mydb
 psql mydb
 \?
 \h
+
+
+
+
+albo
+psql mydb -U mydb
