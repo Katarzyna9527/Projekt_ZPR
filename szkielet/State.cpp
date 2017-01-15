@@ -1,19 +1,45 @@
 #include "State.hpp"
 
-State::State(){
+State::State(Player* player){
 randGen.seed(std::time(0));
+	stateOfShips = new bool*[BOARD_SIZE];
+	stateOfMoves = new bool*[BOARD_SIZE];
+	for(int i=0; i<BOARD_SIZE; i++){
+	stateOfShips[i] = new bool[BOARD_SIZE];
+	stateOfMoves[i] = new bool[BOARD_SIZE];
+		for(int j=0; j<BOARD_SIZE; j++){
+		stateOfShips[i][j] = 0;
+		stateOfMoves[i][j] = 0;
+		}
+	}
+/*
+for(int i=0; i<BOARD_SIZE; i++){
+	for(int j=0; j<BOARD_SIZE; j++){
+	stateOfShips[i][j] = 0;
+	stateOfMoves[i][j] = 0;	
+	}
+}*/
+initializeState(player);
 
 }
-void State::initializeState(Player &player){
 
-bool tabOfForbidenSettings[BOARD_SIZE][BOARD_SIZE] = {};
-	
+void State::initializeState(Player* player){
 
-	for(int i=4; i>0; ++i){
-		for(int j=1; j<=4; ++j){
-		//setShip(i,tabOfForbidenSettings);
-		}	
+	Location loc;
+	bool **tabOfForbiddenSettings = new bool*[BOARD_SIZE];
+	for(int i=0; i<BOARD_SIZE; i++){
+	tabOfForbiddenSettings[i] = new bool[BOARD_SIZE];
+		for(int j=0; j<BOARD_SIZE; j++){
+		tabOfForbiddenSettings[i][j] = 0;
+		}
 	}
+		
+		for (std::vector<Ship*>::iterator i = player->vectorOfShips.begin() ; i != player->vectorOfShips.end(); ++i){
+		//std::cout<<"dlugosc statku = "<<(*i)->getLength()<<std::endl;
+		loc = findLocation((*i)->getLength(),tabOfForbiddenSettings);
+		setShip(*i,tabOfForbiddenSettings,loc, (*i)->getLength());
+		}
+	
 }
 
 Direction State::randomDirection(){
@@ -45,28 +71,35 @@ Position State::randomPosition(const int& length, const Direction& dir){
 	return pos;
 }
 
-Location State::findLocation(const int& length,bool** begin){
+Location State::findLocation(const int& length,bool** tab){
 	bool badNumber = true;
+	bool fieldFree = true;
 	Direction dir;
 	Position pos;
 	int x,y,i;
 	i = length;
 	Location location;	
 	while(badNumber){
+		fieldFree = true;
 		dir = randomDirection();
 		pos = randomPosition(length,dir);
 		x = pos.x;
 		y = pos.y;
-		
-			if(x == 0 && y == 0) {i = 0;badNumber = false;}
-			/*else
+		//std::cout<<"lol"<<std::endl;
+		while(fieldFree){
+			if(tab[x][y] == 1) {fieldFree = false;}
+			else
 			{
-				if(dir == RIGHT)x++;
-				else y++;
-				if(i == 1) badNumber = false;
-				i--;				
-			}*/
-			
+				if(dir == RIGHT)++x;
+				else ++y;
+				if(i == 1){
+					fieldFree = false; 
+					badNumber = false;
+				}
+				
+				--i;				
+			}
+		}	
 	}
 	location.x = pos.x;
 	location.y = pos.y;
@@ -75,4 +108,62 @@ Location State::findLocation(const int& length,bool** begin){
 	return location;
 }
 
-void State::updateState(){}	
+void State::setShip(Ship* ship, bool** tabOfForbiddenPos, const Location& loc, const int& length){
+	
+	ship->setLocation(loc.x, loc.y, loc.direction);
+	
+	for(int i=0; i<length; ++i){
+		if(loc.direction == RIGHT){
+			stateOfShips[loc.x+i][loc.y] = 1;
+			tabOfForbiddenPos[loc.x+i][loc.y] = 1;	
+			if(loc.y > 0) tabOfForbiddenPos[loc.x+i][loc.y-1] = 1;
+			if(loc.y < BOARD_SIZE-1) tabOfForbiddenPos[loc.x+i][loc.y+1] = 1;
+			//if(i == 0 && loc.x > 0) tabOfForbiddenPos[loc.x-1][loc.y] = 1;
+			//if(i == length-1 && loc.x+i < BOARD_SIZE-1) tabOfForbiddenPos[loc.x+length][loc.y] = 1;
+		}
+		else{
+			stateOfShips[loc.x][loc.y+i] = 1;
+			tabOfForbiddenPos[loc.x][loc.y+i] = 1;	
+			if(loc.x > 0)tabOfForbiddenPos[loc.x-1][loc.y+i] = 1;
+			if(loc.x < BOARD_SIZE-1)tabOfForbiddenPos[loc.x+1][loc.y+i] = 1;
+			//if(i == 0 && loc.y > 0) tabOfForbiddenPos[loc.x][loc.y-1] = 1;
+			//if(i == length-1 && loc.y+i < BOARD_SIZE-1) tabOfForbiddenPos[loc.x][loc.y+length] = 1;	
+		}	
+	}
+	
+	if(loc.direction == RIGHT){
+		if(loc.x > 0){
+			tabOfForbiddenPos[loc.x-1][loc.y] = 1;
+			if(loc.y > 0)tabOfForbiddenPos[loc.x-1][loc.y-1] = 1;
+			if(loc.y < BOARD_SIZE-1)tabOfForbiddenPos[loc.x-1][loc.y+1] = 1;
+		}
+		if(loc.x+length-1 < BOARD_SIZE-1){
+			tabOfForbiddenPos[loc.x+length][loc.y] = 1;
+			if(loc.y > 0)tabOfForbiddenPos[loc.x+length][loc.y-1] = 1;
+			if(loc.y < BOARD_SIZE-1)tabOfForbiddenPos[loc.x+length][loc.y+1] = 1;	
+		}
+	}
+	else{
+		if(loc.y > 0){
+			tabOfForbiddenPos[loc.x][loc.y-1] = 1;
+			if(loc.x > 0)tabOfForbiddenPos[loc.x-1][loc.y-1] = 1;
+			if(loc.x < BOARD_SIZE-1)tabOfForbiddenPos[loc.x+1][loc.y-1] = 1;
+			
+		}
+		if(loc.y+length-1 < BOARD_SIZE-1){
+			tabOfForbiddenPos[loc.x][loc.y+length] = 1;
+			if(loc.x > 0)tabOfForbiddenPos[loc.x-1][loc.y+length] = 1;
+			if(loc.x < BOARD_SIZE-1)tabOfForbiddenPos[loc.x+1][loc.y+length] = 1;
+		}	
+	}	
+	/*
+	if(loc.x > 0 && loc.y > 0) tabOfForbiddenPos[loc.x-1][loc.y-1] = 1;
+	if(loc.x < BOARD_SIZE && loc.y > 0) tabOfForbiddenPos[loc.x+length-1][loc.y-1] = 1;
+	if(loc.x > 0 && loc.y < BOARD_SIZE) tabOfForbiddenPos[loc.x-1][loc.y+1] = 1;
+	if(loc.x < BOARD_SIZE && loc.y < BOARD_SIZE) tabOfForbiddenPos[loc.x+length-1][loc.y+1] = 1;
+	*/
+}
+
+void State::updateState(const int& x, const int& y){
+stateOfMoves[x][y] = 1;
+}	

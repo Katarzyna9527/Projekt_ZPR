@@ -48,7 +48,7 @@ elif(platform.system() == "Windows"):
    env_dll.Append( CPPFLAGS = ' /D "CALC_EXPORTS" ')
 
 #build C++ library
-cpplib = env_dll.SharedLibrary( target = 'szkielet', source = ['../szkielet/Ship.cpp', '../szkielet/Player.cpp','../szkielet/Game.cpp','../szkielet/State.cpp'])
+cpplib = env_dll.SharedLibrary( target = 'szkielet', source = ['../szkielet/Ship.cpp', '../szkielet/Player.cpp','../szkielet/Game.cpp','../szkielet/State.cpp', '../szkielet/Move.cpp'])
 if(platform.system() == "Linux"):
    target = '../build_web/szkieletpy/szkielet.so'
 elif(platform.system() == "Windows"):

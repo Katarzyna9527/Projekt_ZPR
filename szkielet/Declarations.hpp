@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <iostream>
 
 const int BOARD_SIZE = 10;
 

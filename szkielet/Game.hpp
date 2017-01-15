@@ -13,16 +13,21 @@ class Game{
 
 public:
 
-Player playerBlue_;
-Player playerPink_;
-State statePlayerBlue_;
-State statePlayerPink_;
+Player* playerBlue_;
+Player* playerPink_;
+State* statePlayerBlue_;
+State* statePlayerPink_;
+Move* move_;
 
 Game();
 ~Game();
  
-private:
-	
+Color whichPlayerNow();
+void changePlayer();
+bool** getBoardOfShips(Color color);
+bool checkMove(Move* move);
+void executeMove(Move* move);
+bool checkVictory(Color color);	
 	
 };
 

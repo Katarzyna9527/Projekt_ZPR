@@ -5,7 +5,6 @@
 
 class Player{
 public:
-
 Color color_;
 bool active_;
 std::vector<Ship*> vectorOfShips; 
@@ -13,7 +12,8 @@ std::vector<Ship*> vectorOfShips;
 Player();
 Player(Color color, bool active);
 bool amIDead();
-
+bool isActive();
+void setActive();
 
 };
 
