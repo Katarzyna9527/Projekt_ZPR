@@ -39,6 +39,7 @@ void test_case2()
 	BOOST_CHECK_EQUAL(1,1);
 
 }*/
+
 /*
 void test_case3(){
 
@@ -46,12 +47,12 @@ void test_case3(){
 	for(int i=0; i<10; i++){
 	tab[i] = new bool[10];
 	for(int j=0; j<10; j++){
-	tab[i][j] = 1;
+	tab[i][j] = 0;
 	}
 	}
 	tab[0][0] = 0;
-	tab[1][0] = 0;
-	tab[9][9] = 0;
+	tab[0][1] = 0;
+	tab[5][5] = 0;
 	State *s = new State();
 	Location loc = s->findLocation(1,tab);
 	std::cout<<"Statek wspolrzedna x = "<<loc.x<<std::endl;
@@ -89,18 +90,18 @@ void test_case4(){
 }*/
 
 
-/*
+
 void test_case5(){
 	Player *player =  new Player(PINK,true);
-	State *s = new State();
-	s->initializeState(player); 
+	State *s = new State(player);
+	//s->initializeState(player); 
 	for(int a= 0; a<BOARD_SIZE; a++){
 		for(int b=0;b<BOARD_SIZE;b++){	
 		std::cout<<s->stateOfShips[b][a]<<" ";
 		}
 	std::cout<<std::endl;
 	}
-}*/
+}
 
 /*
 void test_case6(){
@@ -171,9 +172,9 @@ test_suite* init_unit_test_suite( int argc, char * argv[] )
 	//ts0->add( BOOST_TEST_CASE( & test_case2 ) );
    	//ts0->add( BOOST_TEST_CASE( & test_case3 ) );
 	//ts0->add( BOOST_TEST_CASE( & test_case4 ) );
-	//ts0->add( BOOST_TEST_CASE( & test_case5 ) );   
+	ts0->add( BOOST_TEST_CASE( & test_case5 ) );   
 	//ts0->add( BOOST_TEST_CASE( & test_case6 ) );
-	ts0->add( BOOST_TEST_CASE( & test_case9 ) );
+	//ts0->add( BOOST_TEST_CASE( & test_case9 ) );
 
 	framework::master_test_suite().add( ts0 );
     return 0;

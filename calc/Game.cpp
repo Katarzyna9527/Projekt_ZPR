@@ -6,7 +6,6 @@ Game::Game(){
 	playerPink_ = new Player(PINK, true);
 	statePlayerBlue_ = new State(playerBlue_);
 	statePlayerPink_ = new State(playerPink_);
-	//move_ = new Move();
 }
 
 Color Game::whichPlayerNow(){
@@ -36,6 +35,7 @@ bool Game::checkMove(Move* move){
 
 // w grze można najpierw setMove, a potem tu zamiat argumentu funkcji zrobić this do przedyskutowania
 void Game::executeMove(Move* move){
+
 	if(move->color_ == BLUE) {
 		statePlayerBlue_->updateState(move->x_, move->y_);
 		if(statePlayerPink_->stateOfShips[move->x_][move->y_] == 1){			
@@ -57,10 +57,11 @@ void Game::executeMove(Move* move){
 		}
 	}
 	
+	changePlayer();
 
 }
 
-bool Game::checkVictory(Color color){
+bool Game::checkVictory(const Color& color){
  unsigned int counter = 0;
 	
 	if(color == PINK){

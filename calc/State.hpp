@@ -23,6 +23,7 @@ bool **stateOfMoves;
 boost::random::mt19937 randGen;
 int z;
 
+State(){};
 State(Player* player);	
 void initializeState(Player* player);
 void updateState(const int& x, const int& y);

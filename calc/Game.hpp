@@ -27,7 +27,7 @@ void changePlayer();
 bool** getBoardOfShips(Color color);
 bool checkMove(Move* move);
 void executeMove(Move* move);
-bool checkVictory(Color color);	
+bool checkVictory(const Color& color);
 	
 };
 

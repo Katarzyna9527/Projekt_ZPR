@@ -10,6 +10,7 @@ int x_;
 int y_;
 Color color_;
 
+public:
 Move(){};
 Move(int x, int y, Color color) : x_(x), y_(y), color_(color) {}
 void setMove(int x, int y, Color color);

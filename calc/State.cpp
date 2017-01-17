@@ -33,6 +33,16 @@ void State::initializeState(Player* player){
 		setShip(*i,tabOfForbiddenSettings,loc, (*i)->getLength());
 		}
 	
+	for(int a= 0; a<BOARD_SIZE; a++){
+		for(int b=0;b<BOARD_SIZE;b++){	
+		std::cout<<tabOfForbiddenSettings[b][a]<<" ";
+		}
+	std::cout<<std::endl;
+	}
+std::cout<<std::endl;
+std::cout<<std::endl;
+std::cout<<std::endl;
+
 }
 
 Direction State::randomDirection() {
@@ -70,27 +80,28 @@ Location State::findLocation(const int& length,bool** tab){
 	Direction dir;
 	Position pos;
 	int x,y,i;
-	i = length;
 	Location location;	
 	while(badNumber){
+		i = length;
 		fieldFree = true;
 		dir = randomDirection();
 		pos = randomPosition(length,dir);
 		x = pos.x;
 		y = pos.y;
-		//std::cout<<"lol"<<std::endl;
+		std::cout<<"lol"<<std::endl;
 		while(fieldFree){
 			if(tab[x][y] == 1) {fieldFree = false;}
 			else
 			{
-				if(dir == RIGHT)++x;
-				else ++y;
-				if(i == 1){
+				if(dir == RIGHT)x++;
+				else y++;
+				if(i == 0){
 					fieldFree = false; 
 					badNumber = false;
+					break;
 				}
 				
-				--i;				
+				i--;				
 			}
 		}	
 	}
