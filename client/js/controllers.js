@@ -67,6 +67,31 @@ angular.module('myAppControllers', [])
 					 		 });
 					 };
 					 $timeout(call, 0); //start calling the service
-				 }]);
+				 }])
+	.controller('loginController',
+				['$scope',
+				 '$srvInfo',
+				 function($scope, srvInfo) {
+					 $scope.on_submit_login = function() {
+						 srvInfo.doLoginUser();
+					 }
+				 }])
+	.controller('gameController',
+				['$scope',
+				 '$srvInfo',
+					function($scope, srvInfo) {
+						 function Ship(xpos, ypos) {
+							 this.xpos = xpos;
+							 this.ypos = ypos;
+						 }
+						 $scope.xaxis = [0, 1, 2, 3, 4, 5, 6, 7];
+						 $scope.yaxis = $scope.xaxis;
+
+						 $scope.ships = {};
+
+						 $scope.handle_fire = function() {
+						 	 console.log("Fire pushed")
+						 }
+					}]);
 
 
