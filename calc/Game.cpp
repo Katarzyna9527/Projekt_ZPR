@@ -6,7 +6,7 @@ Game::Game(){
 	playerPink_ = new Player(PINK, true);
 	statePlayerBlue_ = new State(playerBlue_);
 	statePlayerPink_ = new State(playerPink_);
-	move_ = new Move();
+	//move_ = new Move();
 }
 
 Color Game::whichPlayerNow(){

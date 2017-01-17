@@ -1,6 +1,6 @@
 # -*- mode: Python; -*- 
 
-#  @brief scons build for szkielet C++ library
+#  @brief scons build for calc C++ library
 
 import os, platform, shutil
 
@@ -48,11 +48,11 @@ elif(platform.system() == "Windows"):
    env_dll.Append( CPPFLAGS = ' /D "CALC_EXPORTS" ')
 
 #build C++ library
-cpplib = env_dll.SharedLibrary( target = 'szkielet', source = ['../szkielet/Ship.cpp', '../szkielet/Player.cpp','../szkielet/Game.cpp','../szkielet/State.cpp', '../szkielet/Move.cpp'])
+cpplib = env_dll.SharedLibrary( target = 'calc', source = ['../calc/Ship.cpp', '../calc/Player.cpp','../calc/Game.cpp','../calc/State.cpp', '../calc/Move.cpp'])
 if(platform.system() == "Linux"):
-   target = '../build_web/szkieletpy/szkielet.so'
+   target = '../build_web/calcpy/calc.so'
 elif(platform.system() == "Windows"):
-   target = '../build_web/szkieletpy/szkielet.pyd'
+   target = '../build_web/calcpy/calc.pyd'
 env_dll.Command(target, cpplib, copyLibBuilder )
 """
 #build tests

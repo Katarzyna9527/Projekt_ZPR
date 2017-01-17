@@ -153,9 +153,9 @@ void test_case9(){
 	std::cout<<std::endl;
 	}
 
-	game->move_->setMove(2,2,BLUE);
-	std::cout<<game->checkMove(game->move_)<<std::endl;
-	game->executeMove(game->move_);
+	//game->move_->setMove(2,2,BLUE);
+	//std::cout<<game->checkMove(game->move_)<<std::endl;
+	//game->executeMove(game->move_);
 	//std::cout<<"tablica ruchow ruzowego [x][y] ="<<game->statePlayerPink_->stateOfMoves[game->move_->x_][game->move_->y_]<<std::endl;
 	//std::cout<<game->checkMove(game->move_)<<std::endl;
 	

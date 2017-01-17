@@ -12,13 +12,7 @@ randGen.seed(std::time(0));
 		stateOfMoves[i][j] = 0;
 		}
 	}
-/*
-for(int i=0; i<BOARD_SIZE; i++){
-	for(int j=0; j<BOARD_SIZE; j++){
-	stateOfShips[i][j] = 0;
-	stateOfMoves[i][j] = 0;	
-	}
-}*/
+	
 initializeState(player);
 
 }
@@ -35,14 +29,13 @@ void State::initializeState(Player* player){
 	}
 		
 		for (std::vector<Ship*>::iterator i = player->vectorOfShips.begin() ; i != player->vectorOfShips.end(); ++i){
-		//std::cout<<"dlugosc statku = "<<(*i)->getLength()<<std::endl;
 		loc = findLocation((*i)->getLength(),tabOfForbiddenSettings);
 		setShip(*i,tabOfForbiddenSettings,loc, (*i)->getLength());
 		}
 	
 }
 
-Direction State::randomDirection(){
+Direction State::randomDirection() {
 	Direction dir;
 	boost::random::uniform_int_distribution<> dist(0,1);
 	int direction = dist(randGen);

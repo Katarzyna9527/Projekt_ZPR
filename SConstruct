@@ -137,8 +137,8 @@ elif env['doxygen'] == 1:
     os.system('doxygen')
     env.SideEffect('Doxygen', 'Doxygen_in')
 else: #build app
-    SConscript(['szkielet/SConscript'], exports=['env'] )'''
-SConscript(['szkielet/SConscript'], exports=['env'] )
+    SConscript(['calc/SConscript'], exports=['env'] )'''
+SConscript(['calc/SConscript'], exports=['env'] )
 
 env.Clean('.','../doc/doxygen')
 env.Clean('.','Doxyfile')
