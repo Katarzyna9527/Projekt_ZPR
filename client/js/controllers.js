@@ -73,8 +73,9 @@ angular.module('myAppControllers', [])
 				 'srvInfo',
 				 function($scope, srvInfo) {
 					 $scope.on_submit_login = function() {
-						 srvInfo.doLoginUser();
-					 }
+					 	 var callback = function (data) { console.log("Login OK: ",data); };
+						 srvInfo.doLoginUser(callback, $scope.account_name, $scope.account_password);
+					 };
 				 }])
 	.controller('gameController',
 				['$scope',

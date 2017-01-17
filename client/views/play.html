@@ -3,6 +3,7 @@
     @brief the AngularJS partial 'about'
 -->
 
+<center>
 <h1>My application - {{'MAIN' | translate}}</h1>
 <body ng-controller="gameController">
 
@@ -16,7 +17,7 @@
 		<div class="gamediv">
 		</div>
 	</td>
-	<td style="width:5em"/>
+	<td style="width:10em"/>
 	<td class="gamecell" ng-repeat="x in [0, 1, 2, 3, 4, 5, 6, 7]">
 		<div class="gamediv" ng-click="clicked_gamecell(1, 3);">
 		<div/>
@@ -31,3 +32,4 @@
 </div>
 
 </body>
+</center>

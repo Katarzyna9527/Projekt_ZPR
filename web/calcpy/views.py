@@ -30,4 +30,5 @@ def startCommand(params):
     return cmd_id
 
 def loginUser(params):
-	return {"params": params}
+	print "Got name ",params["name"]," password ",params["pass"]
+	return { "session-token": 10203 }
