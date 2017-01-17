@@ -18,7 +18,7 @@ void Game::changePlayer(){
 	playerPink_->setActive();
 }
 
-bool** Game::getBoardOfShips(Color color){
+bool** Game::getBoardOfShips(const Color& color) const{
 	if(color == BLUE) return statePlayerBlue_->stateOfShips;
 	else return statePlayerPink_->stateOfShips;
 }
@@ -26,9 +26,9 @@ bool** Game::getBoardOfShips(Color color){
 //sprawdza tylko pole nie sprawdza czy teraz kolej danego gracza
 bool Game::checkMove(Move* move){
 
-	if(move->color_ == BLUE && statePlayerBlue_->stateOfMoves[move->x_][move->y_] == 1)return false; 
+	if(move->getColor() == BLUE && statePlayerBlue_->stateOfMoves[move->getX()][move->getY()] == 1)return false; 
 	else {	
-	if(move->color_ == PINK && statePlayerPink_->stateOfMoves[move->x_][move->y_] == 1)return false; 
+	if(move->getColor() == PINK && statePlayerPink_->stateOfMoves[move->getX()][move->getY()] == 1)return false; 
 	else return true;
 	}
 }
@@ -36,23 +36,23 @@ bool Game::checkMove(Move* move){
 // w grze można najpierw setMove, a potem tu zamiat argumentu funkcji zrobić this do przedyskutowania
 void Game::executeMove(Move* move){
 
-	if(move->color_ == BLUE) {
-		statePlayerBlue_->updateState(move->x_, move->y_);
-		if(statePlayerPink_->stateOfShips[move->x_][move->y_] == 1){			
+	if(move->getColor() == BLUE) {
+		statePlayerBlue_->updateState(move->getX(), move->getY());
+		if(statePlayerPink_->stateOfShips[move->getX()][move->getY()] == 1){			
 			for (std::vector<Ship*>::iterator i = playerPink_->vectorOfShips.begin() ; i != playerPink_->vectorOfShips.end();++i)	
 			{
-				if((*i)->isHit(move->x_, move->y_)) (*i)->isAlive();
+				if((*i)->isHit(move->getX(), move->getY())) (*i)->isAlive();
 			}		
 		}
 			
 	}
 	else {
-		statePlayerPink_->updateState(move->x_, move->y_);
+		statePlayerPink_->updateState(move->getX(), move->getY());
 		
-		if(statePlayerBlue_->stateOfShips[move->x_][move->y_] == 1){			
+		if(statePlayerBlue_->stateOfShips[move->getX()][move->getY()] == 1){			
 			for (std::vector<Ship*>::iterator i = playerBlue_->vectorOfShips.begin() ; i != playerBlue_->vectorOfShips.end();++i)	
 			{
-				if((*i)->isHit(move->x_, move->y_)) (*i)->isAlive();
+				if((*i)->isHit(move->getX(), move->getY())) (*i)->isAlive();
 			}		
 		}
 	}

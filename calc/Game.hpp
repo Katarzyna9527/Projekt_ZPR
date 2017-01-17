@@ -11,22 +11,25 @@
 
 class Game{
 
-public:
+private:
 
 Player* playerBlue_;
 Player* playerPink_;
 State* statePlayerBlue_;
 State* statePlayerPink_;
-Move* move_;
+//Move* move_;
+
+void changePlayer();
+
+public:
 
 Game();
 ~Game();
  
 Color whichPlayerNow();
-void changePlayer();
-bool** getBoardOfShips(Color color);
-bool checkMove(Move* move);
-void executeMove(Move* move);
+bool** getBoardOfShips(const Color& color) const;
+bool checkMove(Move* move); 
+void executeMove(Move* move); //wykonuje ruch ktory juz jest poprawny
 bool checkVictory(const Color& color);
 	
 };
