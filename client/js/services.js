@@ -16,7 +16,7 @@ angular.module('myAppServices', [])
                      return $http.get(this.baseURL + 'calcpy/getNumber').success(callback);
                  };
 				 this.doLoginUser = function(callback) {
-					 return http.get(this.baseURL + 'calcpy/loginUser?login=aaa&pass=bbb').success(callback);
+					 return $http.get(this.baseURL + 'calcpy/loginUser?login=aaa&pass=bbb').success(callback);
 				 };
 			 })
 	.service('srvCommands', //commands

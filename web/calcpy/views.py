@@ -30,4 +30,4 @@ def startCommand(params):
     return cmd_id
 
 def loginUser(params):
-	return params
+	return {"params": params}

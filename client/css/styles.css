@@ -35,3 +35,34 @@ body {
     padding: 5px;
 }
 
+.gameboard {
+	
+}
+
+.gamerow {
+
+}
+
+.gamecell {
+	background-color: #fff;
+	color: #000;
+	border: 1px solid lightgrey;
+}
+
+.gamecell:hover {
+	background-color:#0000ff!important;
+	color:#000!important;
+}
+
+.gamediv {
+	height: 1em;
+	width: 1em;
+}
+
+.boardtitle {
+	text-align: center;
+}
+
+
+
+

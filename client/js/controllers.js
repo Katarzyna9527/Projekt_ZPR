@@ -70,7 +70,7 @@ angular.module('myAppControllers', [])
 				 }])
 	.controller('loginController',
 				['$scope',
-				 '$srvInfo',
+				 'srvInfo',
 				 function($scope, srvInfo) {
 					 $scope.on_submit_login = function() {
 						 srvInfo.doLoginUser();
@@ -78,14 +78,16 @@ angular.module('myAppControllers', [])
 				 }])
 	.controller('gameController',
 				['$scope',
-				 '$srvInfo',
+				 'srvInfo',
 					function($scope, srvInfo) {
 						 function Ship(xpos, ypos) {
 							 this.xpos = xpos;
 							 this.ypos = ypos;
 						 }
-						 $scope.xaxis = [0, 1, 2, 3, 4, 5, 6, 7];
-						 $scope.yaxis = $scope.xaxis;
+
+						 $scope.clicked_gamecell = function (xpos, ypos) {
+							 console.log("Clicked pos ("+xpos+","+ypos+")");
+						 }
 
 						 $scope.ships = {};
 
