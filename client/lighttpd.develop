@@ -1,5 +1,5 @@
 
-var.server_root = "/home/dangield/Oprogramowanie/bioweb_0.08.91_1_django_angular/client"
+var.server_root = "/home/dangield/ZPR/Projekt_ZPR/client"
 var.log_root    = server_root
 var.state_dir   = server_root
 var.home_dir    = server_root

@@ -24,3 +24,13 @@
 2016-12-11 02:07:37: (server.c.1558) server stopped by UID = 1000 PID = 2397 
 2016-12-11 02:17:00: (log.c.164) server started 
 2016-12-11 02:17:30: (server.c.1558) server stopped by UID = 1000 PID = 3520 
+2017-01-18 12:48:02: (log.c.164) server started 
+2017-01-18 12:48:04: (mod_proxy.c.1021) establishing connection failed: Connection refused 
+2017-01-18 12:48:04: (mod_proxy.c.921) proxy-server disabled: 127.0.0.1 50007 13 
+2017-01-18 12:48:04: (mod_proxy.c.1329) no proxy-handler found for: /srvmyapp/ajax/version/get/ 
+2017-01-18 12:48:04: (mod_proxy.c.1329) no proxy-handler found for: /srvmyapp/ajax/calcpy/getNumber/ 
+2017-01-18 12:48:04: (mod_proxy.c.1329) no proxy-handler found for: /srvmyapp/ajax/calcpy/getCommands/ 
+2017-01-18 12:48:04: (mod_proxy.c.1329) no proxy-handler found for: /srvmyapp/ajax/current/get/ 
+2017-01-18 12:48:04: (mod_proxy.c.1329) no proxy-handler found for: /srvmyapp/ajax/current/get/ 
+2017-01-18 12:48:09: (mod_proxy.c.1374) proxy - re-enabled: 127.0.0.1 50007 
+2017-01-18 12:48:48: (server.c.1558) server stopped by UID = 1000 PID = 3307 

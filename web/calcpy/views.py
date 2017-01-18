@@ -20,7 +20,7 @@ def userMove(params):
 
 def getBoards(params): # uwaga odwrocone osie (x/y)
 	return { "ships": [[],[None, None, "up", "up", "down"],[],[],[],[],[],[]], "shots": [[],[],[None, "hit"],[],[],[],[],[]], "turn": False }
-
+'''
 def loginUser(params):
 	print params
 	conn=psycopg2.connect(database=version.models.getDBNAME(), user=version.models.getDBUser, password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
@@ -43,7 +43,7 @@ def loginUser(params):
 			return 0
 	conn.close()
 	return 1
-		
+'''	
 
 
 def registerUser(params):
