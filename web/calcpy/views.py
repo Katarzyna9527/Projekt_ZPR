@@ -9,16 +9,14 @@ def loginUser(params):
 	print "Got name ",params["name"]," password ",params["pass"]
 	return { "session-token": 10203 }
 
-
 def userMove(params):
 	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],")"
 	return { "valid": 1, "hit": 0 }
 
-
-
 def getBoards(params): # uwaga odwrocone osie (x/y)
-	ships = [10][]
-	shots = [10][]
+	BOARDSIZE = 10
+	ships = [[] for x in range(BOARDSIZE)]
+	shots = [[] for x in range(BOARDSIZE)]
 
 	ships[3][1] = "up"
 	ships[4][1] = "up"

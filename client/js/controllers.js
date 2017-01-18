@@ -67,5 +67,22 @@ angular.module('myAppControllers', [])
 						 
 							
 					 	 $timeout(refresh, 0); //start calling the service
-					}]);
+					}])
+	.controller('listController',
+				['$scope',
+				 '$rootScope',
+				 '$timeout',
+				 'srvInfo',
+					function($scope, $rootScope, $timeout, srvInfo) {
+						 $scope.gamelist = [];
 
+						 $scope.clicked_game = function (xpos, ypos) {
+						 };
+
+						 $scope.REFRESH_INTERVAL = 1000;
+						 var refresh = function() {
+							$timeout(refresh, $scope.REFRESH_INTERVAL); //start calling the service
+						 };
+							
+					 	 $timeout(refresh, 0); //start calling the service
+					}]);
