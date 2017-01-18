@@ -5,18 +5,19 @@
 import psycopg2
 import version.models
 
-def loginUser(login,password):
+def loginUser(params):
+	print params
 	conn=psycopg2.connect(database=version.models.getDBNAME(), user=version.models.getDBUser, password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
 	cur=conn.cursor()
 	cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
 	rows=cur.fetchall()
 	if len(rows)==0:
 		cur.execute('''CREATE TABLE GAME_USERS
-       		(ID INT PRIMARY KEY    NOT NULL,
-       		LOGIN          TEXT    NOT NULL,
-       		PASSWORD       TEXT    NOT NULL,
-		WINS           INT     NOT NULL,
-		LOSES          INT     NOT NULL);''')
+       		(ID INT PRIMARY KEY     NOT NULL,
+       		LOGIN          	TEXT    NOT NULL,
+       		PASSWORD_HASH   TEXT    NOT NULL,
+		WINS            INT     NOT NULL,
+		LOSES           INT     NOT NULL);''')
 		conn.commit()
 	cur.execute("SELECT LOGIN,PASSWORD FROM GAME_USERS")
 	rows=cur.fetchall()
@@ -29,7 +30,7 @@ def loginUser(login,password):
 		
 
 
-def registerUser(newLogin,newPassword):
+def registerUser(params):
 	conn=psycopg2.connect(database=version.models.getDBNAME(), user=version.models.getDBUser, password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
 	cur=conn.cursor()
 	cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
