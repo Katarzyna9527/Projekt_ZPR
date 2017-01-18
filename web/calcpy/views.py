@@ -9,16 +9,13 @@ def loginUser(params):
 	print "Got name ",params["name"]," password ",params["pass"]
 	return { "session-token": 10203 }
 
-class GameStub:
-	hit_counter = 0
 
 def userMove(params):
 	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],")"
-	GameStub.hit_counter += 1
-	return { "valid": 1, "hit": GameStub.hit_counter%2 }
+	return { "valid": 1, "hit": 0 }
 
 def getBoards(params): # uwaga odwrocone osie (x/y)
-	return { "ships": [[],[None, None, "up", "up", "down"],[],[],[],[],[],[]], "shots": [[],[],[None, "hit"],[],[],[],[],[]], "turn": False }
+	return { "ships": [[],[None, None, "up", "up", "down"],[],[],[],[],[],[],[],[]], "shots": [[],[],[None, "hit"],[],[],[],[],[],[],[]], "turn": False }
 
 def registerUser(params):
 	conn=psycopg2.connect(database=version.models.getDBNAME(), user=version.models.getDBUser, password=version.models.getDBPassword(), host="127.0.0.1", port="5432")

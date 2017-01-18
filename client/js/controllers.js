@@ -19,7 +19,8 @@ angular.module('myAppControllers', [])
 				 function($scope, $rootScope, $location, srvInfo) {
 					 $scope.on_submit_login = function() {
 					 	 var callback = function (data) { console.log("Login OK: ",data); $rootScope.token = data["session-token"]; $location.path('/play')};
-						 srvInfo.doLoginUser(callback, $scope.account_name, $scope.account_password);
+						 var fallback = function () { console.log("Login failed"); };
+						 srvInfo.doLoginUser(callback, fallback, $scope.account_name, $scope.account_password);
 					 };
 				 }])
 	.controller('gameController',
@@ -28,8 +29,8 @@ angular.module('myAppControllers', [])
 				 '$timeout',
 				 'srvInfo',
 					function($scope, $rootScope, $timeout, srvInfo) {
-						 $scope.shiplist = [[],[],[],[],[],[],[],[]]
-						 $scope.shotlist = [[],[],[],[],[],[],[],[]];
+						 $scope.shiplist = [[],[],[],[],[],[],[],[],[],[]];
+						 $scope.shotlist = [[],[],[],[],[],[],[],[],[],[]];
 
 						 console.log($scope.shiplist);
 					
