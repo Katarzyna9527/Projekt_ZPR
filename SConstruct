@@ -64,7 +64,6 @@ def addToLD(path):
         os.environ["LD_LIBRARY_PATH"]= os.environ["LD_LIBRARY_PATH"] + ':' + os.path.abspath(path)
     else:
         os.environ["LD_LIBRARY_PATH"]= os.path.abspath(path)
-'''
 if env['r'] == 'l':
     os.system(BROWSER_CMD)
     os.system('lighttpd -f client/lighttpd.develop')
@@ -137,8 +136,7 @@ elif env['doxygen'] == 1:
     os.system('doxygen')
     env.SideEffect('Doxygen', 'Doxygen_in')
 else: #build app
-    SConscript(['calc/SConscript'], exports=['env'] )'''
-SConscript(['calc/SConscript'], exports=['env'] )
+    SConscript(['calc/SConscript'], exports=['env'] )
 
 env.Clean('.','../doc/doxygen')
 env.Clean('.','Doxyfile')

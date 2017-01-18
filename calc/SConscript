@@ -55,6 +55,7 @@ elif(platform.system() == "Windows"):
    target = '../build_web/calcpy/calc.pyd'
 env_dll.Command(target, cpplib, copyLibBuilder )
 
+
 #build tests
 env_test = env.Clone()
 
@@ -63,5 +64,4 @@ if(platform.system() == "Linux"):
    env_test.Prepend( LIBS = 'calc' )
 elif(platform.system() == "Windows"):
    env_test.Prepend( LIBS = 'calc' )
-env_test.Program( target = "calc", source = 'test.cpp')
-
+env_test.Program( target = "calc_test", source = 'test.cpp')

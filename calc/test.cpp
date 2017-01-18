@@ -147,12 +147,24 @@ void test_case8(){
 void test_case9(){
 
 	Game* game = new Game();
+	Board board;
+	board = game->getBoardOfShipsSettings(PINK);
+
+	for(int a= 0; a<BOARD_SIZE; a++){
+		for(int b=0;b<BOARD_SIZE;b++){	
+		std::cout<<board[b][a]<<" ";
+		}
+	std::cout<<std::endl;
+	}
+
+/*
+	Game* game = new Game();
 	for(int a= 0; a<BOARD_SIZE; a++){
 		for(int b=0;b<BOARD_SIZE;b++){	
 		std::cout<<game->statePlayerPink_->stateOfShips[b][a]<<" ";
 		}
 	std::cout<<std::endl;
-	}
+	}*/
 
 	//game->move_->setMove(2,2,BLUE);
 	//std::cout<<game->checkMove(game->move_)<<std::endl;
@@ -172,9 +184,9 @@ test_suite* init_unit_test_suite( int argc, char * argv[] )
 	//ts0->add( BOOST_TEST_CASE( & test_case2 ) );
    	//ts0->add( BOOST_TEST_CASE( & test_case3 ) );
 	//ts0->add( BOOST_TEST_CASE( & test_case4 ) );
-	ts0->add( BOOST_TEST_CASE( & test_case5 ) );   
+	//ts0->add( BOOST_TEST_CASE( & test_case5 ) );   
 	//ts0->add( BOOST_TEST_CASE( & test_case6 ) );
-	//ts0->add( BOOST_TEST_CASE( & test_case9 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case9 ) );
 
 	framework::master_test_suite().add( ts0 );
     return 0;

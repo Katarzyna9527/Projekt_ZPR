@@ -105,10 +105,11 @@ Board board;
 bool **b ;
 b = getBoardOfShips(color);
 
-	for(int i=0; i<BOARD_SIZE; i++){
-		for(int j=0; j<BOARD_SIZE; j++){
-			board[i][j] = b[i][j];
-		}
+	for (int i = 0; i < BOARD_SIZE; ++i)
+	{
+		board.push_back( std::vector<bool>() );
+		for (int j = 0; j < BOARD_SIZE; ++j)
+			board[i].push_back(b[i][j]);
 	}
 
 return board;

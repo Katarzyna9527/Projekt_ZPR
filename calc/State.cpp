@@ -33,7 +33,7 @@ void State::initializeState(Player* player){
 		setShip(*i,tabOfForbiddenSettings,loc, (*i)->getLength());
 		}
 	
-	for(int a= 0; a<BOARD_SIZE; a++){
+/*	for(int a= 0; a<BOARD_SIZE; a++){
 		for(int b=0;b<BOARD_SIZE;b++){	
 		std::cout<<tabOfForbiddenSettings[b][a]<<" ";
 		}
@@ -42,7 +42,7 @@ void State::initializeState(Player* player){
 std::cout<<std::endl;
 std::cout<<std::endl;
 std::cout<<std::endl;
-
+*/
 }
 
 Direction State::randomDirection() {
