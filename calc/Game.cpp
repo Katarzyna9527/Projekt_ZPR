@@ -98,5 +98,21 @@ bool Game::checkVictory(const Color& color){
 return false;
 }
 
+
+Board Game::getBoardOfShipsSettings(const Color& color){
+
+Board board;
+bool **b ;
+b = getBoardOfShips(color);
+
+	for(int i=0; i<BOARD_SIZE; i++){
+		for(int j=0; j<BOARD_SIZE; j++){
+			board[i][j] = b[i][j];
+		}
+	}
+
+return board;
+}
+
 Game::~Game(){}
 

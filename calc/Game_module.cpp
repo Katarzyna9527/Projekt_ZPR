@@ -6,6 +6,8 @@
 
 BOOST_PYTHON_MODULE(calc){
 
+	
+
 	boost::python::enum_<Direction>("Direction")
 		.value( "RIGHT", RIGHT )
 		.value( "DOWN", DOWN )
@@ -16,12 +18,17 @@ BOOST_PYTHON_MODULE(calc){
 		.value( "BLUE", BLUE )
 		;
 
+	boost::python::class_<std::vector <std::vector<bool> > >("Matrix")
+		.def(boost::python::vector_indexing_suite<std::vector <std::vector<bool> > >())
+		;
+
+
 	boost::python::class_<Move>("Move",boost::python::init<int,int,Color>())
 		;
 
 	
 	boost::python::class_<Game>("Game",boost::python::init<>())
-		//.def("getBoardOfShips", &Game::getBoardOfShips, boost::python::return_value_policy<boost::python::reference_existing_object>())
+		.def("getBoardOfShipsSettings", &Game::getBoardOfShipsSettings)
 		.def("whichPlayerNow", &Game::whichPlayerNow)
 		.def("checkMove", &Game::checkMove)
 		.def("executeMove", &Game::executeMove)
