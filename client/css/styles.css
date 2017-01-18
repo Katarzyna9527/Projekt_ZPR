@@ -63,25 +63,29 @@ body {
 }
 
 .shiptileup {
-	background-color: #f00;
+	background-color: #f11;
 }
 
 .shiptiledown {
 	background-color: #333;
 }
 
-.shiptile .shottile {
+.shiptile {
 	background-color: #66f;
 }
 
-.shottileup {
-	background-color: #fff;
+.shottilehit {
+	background-color: #f11!important;
 }
 
-.shottiledown {
-	background-color: #222;
+.shottilemiss {
+	background-color: #222!important;
 }
 
 .shottile {
-	background-color: #f00;
+	background-color: #33b;
+}
+
+.enemy.true {
+	background-color: #66f;
 }

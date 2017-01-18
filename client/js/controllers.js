@@ -70,31 +70,58 @@ angular.module('myAppControllers', [])
 				 }])
 	.controller('loginController',
 				['$scope',
+				 '$rootScope',
+				 '$location',
 				 'srvInfo',
-				 function($scope, srvInfo) {
+				 function($scope, $rootScope, $location, srvInfo) {
 					 $scope.on_submit_login = function() {
-					 	 var callback = function (data) { console.log("Login OK: ",data); };
+					 	 var callback = function (data) { console.log("Login OK: ",data); $rootScope.token = data["session-token"]; $location.path('/play')};
 						 srvInfo.doLoginUser(callback, $scope.account_name, $scope.account_password);
 					 };
 				 }])
 	.controller('gameController',
 				['$scope',
+				 '$rootScope',
+				 '$timeout',
 				 'srvInfo',
-					function($scope, srvInfo) {
+					function($scope, $rootScope, $timeout, srvInfo) {
 						 $scope.shiplist = [[],[],[],[],[],[],[],[]]
-						 function Ship(xpos, ypos, shiplist = $scope.shiplist) {
-							 this.xpos = xpos;
-							 this.ypos = ypos;
-							 this.up = true;
-							 shiplist[xpos][ypos] = "up";
-						 }
-
-						 $scope.ships = [Ship(0, 0), Ship(0, 1), Ship(0, 2), Ship(3, 2), Ship(3, 3)];
 						 $scope.shotlist = [[],[],[],[],[],[],[],[]];
 
 						 console.log($scope.shiplist);
+					
+						 $scope.turn = true;
 						 $scope.clicked_gamecell = function (xpos, ypos) {
-							 $scope.shotlist[xpos][ypos]="down";
+							 if ($scope.shotlist[xpos][ypos]) { console.log("Cannot shoot there"); return; }
+							 if ($scope.turn == false) { console.log("Not your turn"); return; }
+							 srvInfo.doUserMove(function(data) { 
+								 if (data.data["valid"] != 1) { 
+									 return; }
+								 if (data.data["hit"] == 1) { 
+									 $scope.shotlist[xpos][ypos]="hit"; }
+								 else {
+									 $scope.shotlist[xpos][ypos]="miss"; }
+
+								 $scope.turn = false;
+								 $scope.REFRESH_INTERVAL = 1000;
+								 }, function() {}, xpos, ypos, $rootScope.token );
 						 };
+
+						 $scope.REFRESH_INTERVAL = 3000;
+						 var refresh = function() {
+						 	srvInfo.doGetBoards(function(data) {
+								console.log(data);
+								$scope.shiplist = data.data["ships"]; 
+								$scope.shotlist = data.data["shots"]; // TODO: add turn to data
+								$scope.turn = data.data["turn"]; // TODO: add turn to data
+								if ($scope.turn) $scope.REFRESH_INTERVAL = 5000;
+								else $scope.REFRESH_INTERVAL = 1000;
+								}, function() {}, $rootScope.token);
+					 	 		
+								$timeout(refresh, $scope.REFRESH_INTERVAL); //start calling the service
+							};
+						 
+							
+					 	 $timeout(refresh, 0); //start calling the service
 					}]);
 
