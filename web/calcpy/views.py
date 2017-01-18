@@ -4,7 +4,7 @@
 
 import psycopg2
 import version.models
-import gamelist
+import threading
 
 class GameList:
 	cid = 1
@@ -22,38 +22,36 @@ class GameStub:
 		self.shots[6][2] = "hit"
 		self.shots[6][3] = "miss"
 	
-
-global l=threading.Lock()
+class L:
+	l=threading.Lock()
 
 def loginUser(params):
-<<<<<<< HEAD
 	print "Got name ",params["name"]," password ",params["pass"]
-	l.acquire()
-	conn=psycopg2.connect(database=version.models.getDBNAME(), user=version.models.getDBUser, password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
-	cur=conn.cursor()
-	cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
-	rows=cur.fetchall()
-	if len(rows)==0:
-		cur.execute('''CREATE TABLE GAME_USERS
-       		(ID INT PRIMARY KEY     NOT NULL,
-       		LOGIN          	TEXT    NOT NULL,
-       		PASSWORD_HASH   TEXT    NOT NULL,
-		WINS            INT     NOT NULL,
-		LOSES           INT     NOT NULL);''')
-		conn.commit()
-	cur.execute("SELECT ID,LOGIN,PASSWORD_HASH FROM GAME_USERS")
-	rows=cur.fetchall()
-	for row in rows:
-		if row[1]==params["name"] and row[2]==params["pass"]:
-			conn.close()
-			l.release()
-			return { "session-token": row[0] }
-	conn.close()
-	l.release()
+	L.l.acquire()
+	try:
+		conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
+		cur=conn.cursor()
+		cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
+		rows=cur.fetchall()
+		if len(rows)==0:
+			cur.execute('''CREATE TABLE GAME_USERS
+       			(ID INT PRIMARY KEY     NOT NULL,
+       			LOGIN          	TEXT    NOT NULL,
+       			PASSWORD_HASH   TEXT    NOT NULL,
+				WINS            INT     NOT NULL,
+			LOSES           INT     NOT NULL);''')
+			conn.commit()
+		cur.execute("SELECT ID,LOGIN,PASSWORD_HASH FROM GAME_USERS")
+		rows=cur.fetchall()
+		for row in rows:
+			if row[1]==params["name"] and row[2]==params["pass"]:
+				conn.close()
+				L.l.release()
+				return { "session-token": row[0] }
+		conn.close()
+	finally:
+		L.l.release()
 	return { "session-token": None }
-=======
-	return { "session-token": 10203 }
->>>>>>> Added working game list
 
 def userMove(params):
 	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],")"
@@ -93,32 +91,34 @@ def getGame(params):
 
 def registerUser(params):
 	print "Got name ",params["name"]," password ",params["pass"]
-	l.acquire()
-	conn=psycopg2.connect(database=version.models.getDBNAME(), user=version.models.getDBUser, password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
-	cur=conn.cursor()
-	cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
-	rows=cur.fetchall()
-	if len(rows)==0:
-		cur.execute('''CREATE TABLE GAME_USERS
-       		(ID INT PRIMARY KEY    NOT NULL,
-       		LOGIN          TEXT    NOT NULL,
-       		PASSWORD_HASH  TEXT    NOT NULL,
-		WINS           INT     NOT NULL,
-		LOSES          INT     NOT NULL);''')
+	L.l.acquire()
+	try:
+		conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
+		cur=conn.cursor()
+		cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
+		rows=cur.fetchall()
+		if len(rows)==0:
+			cur.execute('''CREATE TABLE GAME_USERS
+	       		(ID INT PRIMARY KEY    NOT NULL,
+	       		LOGIN          TEXT    NOT NULL,
+	       		PASSWORD_HASH  TEXT    NOT NULL,
+			WINS           INT     NOT NULL,
+			LOSES          INT     NOT NULL);''')
+			conn.commit()
+		cur.execute("SELECT ID,LOGIN FROM GAME_USERS")
+		rows=cur.fetchall()
+		newId=0
+		for row in rows:
+			if row[1]==login:
+				conn.close()
+				L.l.release()
+				return  { "session-token": None }
+			if row[0]>=newId:
+				newId=row[0]+1
+		cur.execute("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) \ VALUES (%s,%s,%s,0,0)",(newId,params["name"],params["pass"]))
 		conn.commit()
-	cur.execute("SELECT ID,LOGIN FROM GAME_USERS")
-	rows=cur.fetchall()
-	newId=0
-	for row in rows:
-		if row[1]==login:
-			conn.close()
-			l.release()
-			return  { "session-token": None }
-		if row[0]>=newId:
-			newId=row[0]+1
-	cur.execute("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) \ VALUES (%s,%s,%s,0,0)",(newId,params["name"],params["pass"]))
-	conn.commit()
-	conn.close()
-	l.release()
+		conn.close()
+	finally:
+		L.l.release()
 	return { "session-token": newId }
 
