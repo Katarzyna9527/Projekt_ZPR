@@ -39,8 +39,8 @@ def userMove(params):
 
 def getBoards(params): # uwaga odwrocone osie (x/y)
 	BOARDSIZE = 10
-	ships = [[] for x in range(BOARDSIZE)]
-	shots = [[] for x in range(BOARDSIZE)]
+	ships = [[None for y in range(BOARDSIZE)] for x in range(BOARDSIZE)]
+	shots = [[None for y in range(BOARDSIZE)] for x in range(BOARDSIZE)]
 
 	ships[3][1] = "up"
 	ships[4][1] = "up"

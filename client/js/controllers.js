@@ -17,11 +17,19 @@ angular.module('myAppControllers', [])
 				 '$location',
 				 'srvInfo',
 				 function($scope, $rootScope, $location, srvInfo) {
+					 $scope.login_failed = false;
+					 $scope.register_failed = false;
 					 $scope.on_submit_login = function() {
-					 	 var callback = function (data) { console.log("Login OK: ",data); $rootScope.token = data["session-token"]; $location.path('/play')};
+					 	 var callback = function (data) { if (data.data["session-token"]) { $rootScope.token = data.data["session-token"]; $location.path('/play'); } else { $scope.login_failed = true; }};
 						 var fallback = function () { console.log("Login failed"); };
 						 srvInfo.doLoginUser(callback, fallback, $scope.account_name, $scope.account_password);
 					 };
+					 $scope.on_submit_register = function() {
+					 	 var callback = function (data) { if (data.data["session-token"]) { $rootScope.token = data.data["session-token"]; $location.path('/play'); } else { $scope.login_failed = true; }};
+						 var fallback = function () { $scope.register_failed = true; };
+						 srvInfo.doRegisterUser(callback, fallback, $scope.account_name, $scope.account_password);
+					 };
+
 				 }])
 	.controller('gameController',
 				['$scope',
@@ -32,7 +40,7 @@ angular.module('myAppControllers', [])
 						 $scope.shiplist = [[],[],[],[],[],[],[],[],[],[]];
 						 $scope.shotlist = [[],[],[],[],[],[],[],[],[],[]];
 
-						 console.log($scope.shiplist);
+						 console.log($rootScope.token);
 					
 						 $scope.turn = true;
 						 $scope.clicked_gamecell = function (xpos, ypos) {
@@ -56,8 +64,8 @@ angular.module('myAppControllers', [])
 						 	srvInfo.doGetBoards(function(data) {
 								console.log(data);
 								$scope.shiplist = data.data["ships"]; 
-								$scope.shotlist = data.data["shots"]; // TODO: add turn to data
-								$scope.turn = data.data["turn"]; // TODO: add turn to data
+								$scope.shotlist = data.data["shots"];
+								$scope.turn = data.data["turn"];
 								if ($scope.turn) $scope.REFRESH_INTERVAL = 5000;
 								else $scope.REFRESH_INTERVAL = 1000;
 								}, function() {}, $rootScope.token);

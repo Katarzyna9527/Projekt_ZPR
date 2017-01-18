@@ -89,3 +89,15 @@ body {
 .enemy.true {
 	background-color: #66f;
 }
+
+.login_button {
+	background-color: #ddd;
+	border: none;
+	border-radius: 4px;
+	width: 10em;
+	margin: 0.5em;
+}
+
+.login_button:hover {
+	background-color: #f0f0f0;
+}
