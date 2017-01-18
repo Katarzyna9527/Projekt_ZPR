@@ -23,6 +23,24 @@ bool** Game::getBoardOfShips(const Color& color) const{
 	else return statePlayerPink_->stateOfShips;
 }
 
+/*
+Board getBoardOfShipSettings(const Color& color) const{
+
+Board board;
+
+for(int i=0; i<BOARD_SIZE; ++i){
+	for(int j=0; j<BOARD_SIZE; ++j)
+	{
+		board[i][j] = this->getBoardOfShips(color)[i][j]; 
+	}
+return board;
+}
+
+return board;
+
+}
+*/
+
 //sprawdza tylko pole nie sprawdza czy teraz kolej danego gracza
 bool Game::checkMove(Move* move){
 

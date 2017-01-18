@@ -11,7 +11,7 @@
 
 class Game{
 
-private:
+public:
 
 Player* playerBlue_;
 Player* playerPink_;
@@ -31,7 +31,8 @@ bool** getBoardOfShips(const Color& color) const;
 bool checkMove(Move* move); 
 void executeMove(Move* move); //wykonuje ruch ktory juz jest poprawny
 bool checkVictory(const Color& color);
-	
+Board getBoardOfShipSettings(const Color& color) const; 
+
 };
 
 
