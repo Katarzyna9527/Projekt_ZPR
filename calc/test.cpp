@@ -149,7 +149,7 @@ void test_case9(){
 	Game* game = new Game();
 	for(int a= 0; a<BOARD_SIZE; a++){
 		for(int b=0;b<BOARD_SIZE;b++){	
-		std::cout<<game->statePlayerPink_->get<<" ";
+		std::cout<<game->statePlayerPink_->stateOfShips[b][a]<<" ";
 		}
 	std::cout<<std::endl;
 	}

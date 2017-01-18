@@ -95,7 +95,7 @@ Location State::findLocation(const int& length,bool** tab){
 			{
 				if(dir == RIGHT)x++;
 				else y++;
-				if(i == 0){
+				if(i == 1){
 					fieldFree = false; 
 					badNumber = false;
 					break;
