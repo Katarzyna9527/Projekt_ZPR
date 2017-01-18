@@ -81,20 +81,20 @@ angular.module('myAppControllers', [])
 				['$scope',
 				 'srvInfo',
 					function($scope, srvInfo) {
-						 function Ship(xpos, ypos) {
+						 $scope.shiplist = [[],[],[],[],[],[],[],[]]
+						 function Ship(xpos, ypos, shiplist = $scope.shiplist) {
 							 this.xpos = xpos;
 							 this.ypos = ypos;
+							 this.up = true;
+							 shiplist[xpos][ypos] = "up";
 						 }
 
+						 $scope.ships = [Ship(0, 0), Ship(0, 1), Ship(0, 2), Ship(3, 2), Ship(3, 3)];
+						 $scope.shotlist = [[],[],[],[],[],[],[],[]];
+
+						 console.log($scope.shiplist);
 						 $scope.clicked_gamecell = function (xpos, ypos) {
-							 console.log("Clicked pos ("+xpos+","+ypos+")");
-						 }
-
-						 $scope.ships = {};
-
-						 $scope.handle_fire = function() {
-						 	 console.log("Fire pushed")
-						 }
+							 $scope.shotlist[xpos][ypos]="down";
+						 };
 					}]);
-
 

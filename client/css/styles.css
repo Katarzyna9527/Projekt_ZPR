@@ -44,9 +44,10 @@ body {
 }
 
 .gamecell {
-	background-color: #fff;
 	color: #000;
 	border: 1px solid lightgrey;
+	height: 4em;
+	width: 4em;
 }
 
 .gamecell:hover {
@@ -55,14 +56,32 @@ body {
 }
 
 .gamediv {
-	height: 4em;
-	width: 4em;
 }
 
 .boardtitle {
 	text-align: center;
 }
 
+.shiptileup {
+	background-color: #f00;
+}
 
+.shiptiledown {
+	background-color: #333;
+}
 
+.shiptile .shottile {
+	background-color: #66f;
+}
 
+.shottileup {
+	background-color: #fff;
+}
+
+.shottiledown {
+	background-color: #222;
+}
+
+.shottile {
+	background-color: #f00;
+}
