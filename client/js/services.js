@@ -14,10 +14,13 @@ angular.module('myAppServices', [])
 				 this.doUserMove = function(callback, fallback, x, y, token) {
 					 return $http.get(this.baseURL + 'calcpy/userMove', { params: { 'x': x, 'y': y, 'token': token} }).then(callback, fallback);
 				 };
-				 this.doGetBoards = function(callback, fallback, token) {
-					 return $http.get(this.baseURL + 'calcpy/getBoards', { params: { 'token': token} }).then(callback, fallback);
+				 this.doGetBoards = function(callback, fallback, token, game) {
+					 return $http.get(this.baseURL + 'calcpy/getBoards', { params: { 'token': token, 'game': game } }).then(callback, fallback);
 				 };
 				 this.doGetGames = function(callback, fallback, token) {
-
+					 return $http.get(this.baseURL + 'calcpy/getGames', { params: { 'token': token } }).then(callback, fallback);
+				 };
+				 this.doGetGame = function(callback, fallback, token, game) {
+					 return $http.get(this.baseURL + 'calcpy/getGame', { params: { 'token': token, 'game': game } }).then(callback, fallback);
 				 };
 			 });

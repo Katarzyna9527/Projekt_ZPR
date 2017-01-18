@@ -101,3 +101,26 @@ body {
 .login_button:hover {
 	background-color: #f0f0f0;
 }
+
+.gamelist {
+	border: none;
+	width: 79em;
+	padding-top:0.5em;
+	padding-bottom:0.5em;
+	padding-left:1em;
+}
+
+.gamelist_element {
+	width: 78em;
+	padding-left:2em;
+	padding-top:0.5em;
+	padding-bottom:0.5em;
+	background-color: #f04040;
+	border-radius: 5px;
+	vertical-align: middle;
+	color: white;
+}
+
+.gamelist_element:hover {
+	background-color: #60f060;
+}

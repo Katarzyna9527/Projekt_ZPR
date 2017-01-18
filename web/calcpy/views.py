@@ -4,10 +4,29 @@
 
 import psycopg2
 import version.models
+import gamelist
+
+class GameList:
+	cid = 1
+	games = {}
+
+class GameStub:
+	BOARDSIZE = 10
+	def __init__(self):
+		self.ships = [[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
+		self.shots = [[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
+		self.ships[3][1] = "up"
+		self.ships[4][1] = "up"
+		self.ships[5][1] = "down"
+		
+		self.shots[6][2] = "hit"
+		self.shots[6][3] = "miss"
+	
 
 global l=threading.Lock()
 
 def loginUser(params):
+<<<<<<< HEAD
 	print "Got name ",params["name"]," password ",params["pass"]
 	l.acquire()
 	conn=psycopg2.connect(database=version.models.getDBNAME(), user=version.models.getDBUser, password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
@@ -32,24 +51,45 @@ def loginUser(params):
 	conn.close()
 	l.release()
 	return { "session-token": None }
+=======
+	return { "session-token": 10203 }
+>>>>>>> Added working game list
 
 def userMove(params):
 	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],")"
 	return { "valid": 1, "hit": 0 }
 
 def getBoards(params): # uwaga odwrocone osie (x/y)
-	BOARDSIZE = 10
-	ships = [[None for y in range(BOARDSIZE)] for x in range(BOARDSIZE)]
-	shots = [[None for y in range(BOARDSIZE)] for x in range(BOARDSIZE)]
+	name = params["game"]
+	print params
+	print GameList.games
+	if name not in GameList.games.keys():
+		return {"valid": False}
+	game = GameList.games[name]
+	player = params["token"]
+	if player != game['blue'] and player != game['pink']:
+		return {"valid": False}
 
-	ships[3][1] = "up"
-	ships[4][1] = "up"
-	ships[5][1] = "down"
-	
-	shots[6][2] = "hit"
-	shots[6][3] = "miss"
+	return { "ships": game["game"].ships, "shots": game["game"].shots, "turn": True, "winner": None, "valid":True }
 
-	return { "ships": ships, "shots": shots, "turn": True, "winner": None }
+def getGames(params):
+	return { "games": GameList.games.keys() }
+
+def getGame(params):
+	name = params['game']
+	if name == 'New Game':
+		name = 'Game '+str(GameList.cid)
+		GameList.cid += 1
+		GameList.games[name] = {'blue': params['token'], 'pink': None, 'game': GameStub()}
+	elif name in GameList.games.keys():
+		game = GameList.games[name]
+		if game["blue"] is None:
+			game["blue"] = params['token']
+		elif game["pink"] is None:
+			game["pink"] = params['token']
+		else:
+			return { "game": None, "valid": False }
+	return { "game": name, "valid": True }
 
 def registerUser(params):
 	print "Got name ",params["name"]," password ",params["pass"]

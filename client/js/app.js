@@ -7,6 +7,9 @@ angular.module('myApp', ['ngRoute', 'pascalprecht.translate', 'myAppControllers'
                  $routeProvider.when('/login', {
                      templateUrl: 'views/login.html',
                  });
+                 $routeProvider.when('/list', {
+                     templateUrl: 'views/list.html',
+                 });
                  $routeProvider.when('/play', {
                      templateUrl: 'views/play.html',
                  });

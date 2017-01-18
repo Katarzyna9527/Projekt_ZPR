@@ -1,0 +1,25 @@
+<!--
+	@file about.html
+    @brief the AngularJS partial 'about'
+-->
+
+<center>
+<h1>{{'Game list' | translate}}</h1>
+</center>
+<div ng-controller="listController">
+
+<table class="gamelist">
+	<tr ng-repeat="game in gamelist">
+		<td style="vertical-align: center;">
+			<div class="gamelist_element" ng-click="gameClicked(game);">{{game}}
+			</div>
+		</td>
+	</tr>
+</table>
+
+
+
+</div>
+
+</div>
+

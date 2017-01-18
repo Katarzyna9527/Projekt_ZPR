@@ -13,19 +13,19 @@ angular.module('myAppControllers', [])
 				 }])
 	.controller('loginController',
 				['$scope',
-				 '$rootScope',
 				 '$location',
 				 'srvInfo',
-				 function($scope, $rootScope, $location, srvInfo) {
+				 function($scope, $location, srvInfo) {
 					 $scope.login_failed = false;
 					 $scope.register_failed = false;
+					 var token = -1;
 					 $scope.on_submit_login = function() {
-					 	 var callback = function (data) { if (data.data["session-token"]) { $rootScope.token = data.data["session-token"]; $location.path('/play'); } else { $scope.login_failed = true; }};
+					 	 var callback = function (data) { if (data.data["session-token"]) { token = data.data["session-token"]; $location.path('/list').search('token',token); } else { $scope.login_failed = true; }};
 						 var fallback = function () { console.log("Login failed"); };
 						 srvInfo.doLoginUser(callback, fallback, $scope.account_name, $scope.account_password);
 					 };
 					 $scope.on_submit_register = function() {
-					 	 var callback = function (data) { if (data.data["session-token"]) { $rootScope.token = data.data["session-token"]; $location.path('/play'); } else { $scope.login_failed = true; }};
+					 	 var callback = function (data) { if (data.data["session-token"]) { token = data.data["session-token"]; $location.path('/list').search('token',token); } else { $scope.login_failed = true; }};
 						 var fallback = function () { $scope.register_failed = true; };
 						 srvInfo.doRegisterUser(callback, fallback, $scope.account_name, $scope.account_password);
 					 };
@@ -33,15 +33,15 @@ angular.module('myAppControllers', [])
 				 }])
 	.controller('gameController',
 				['$scope',
-				 '$rootScope',
 				 '$timeout',
+				 '$routeParams',
 				 'srvInfo',
-					function($scope, $rootScope, $timeout, srvInfo) {
+					function($scope, $timeout, $routeParams, srvInfo) {
 						 $scope.shiplist = [[],[],[],[],[],[],[],[],[],[]];
 						 $scope.shotlist = [[],[],[],[],[],[],[],[],[],[]];
+						 var token = $routeParams['token'];
+						 var game = $routeParams['game'];
 
-						 console.log($rootScope.token);
-					
 						 $scope.turn = true;
 						 $scope.clicked_gamecell = function (xpos, ypos) {
 							 if ($scope.shotlist[xpos][ypos]) { console.log("Cannot shoot there"); return; }
@@ -56,7 +56,7 @@ angular.module('myAppControllers', [])
 
 								 $scope.turn = false;
 								 $scope.REFRESH_INTERVAL = 1000;
-								 }, function() {}, xpos, ypos, $rootScope.token );
+								 }, function() {}, xpos, ypos, token );
 						 };
 
 						 $scope.REFRESH_INTERVAL = 3000;
@@ -68,29 +68,44 @@ angular.module('myAppControllers', [])
 								$scope.turn = data.data["turn"];
 								if ($scope.turn) $scope.REFRESH_INTERVAL = 5000;
 								else $scope.REFRESH_INTERVAL = 1000;
-								}, function() {}, $rootScope.token);
+								}, function() {}, token, game);
 					 	 		
 								$timeout(refresh, $scope.REFRESH_INTERVAL); //start calling the service
-							};
+						 };
 						 
+						 $scope.$on('$locationChangeStart', function(){
+  							 $timeout.cancel(timeout_promise);
+						 });
 							
-					 	 $timeout(refresh, 0); //start calling the service
+					 	 var timeout_promise = $timeout(refresh, 0); //start calling the service
 					}])
 	.controller('listController',
 				['$scope',
-				 '$rootScope',
 				 '$timeout',
+				 '$location',
+				 '$routeParams',
 				 'srvInfo',
-					function($scope, $rootScope, $timeout, srvInfo) {
+					function($scope, $timeout, $location, $routeParams, srvInfo) {
 						 $scope.gamelist = [];
+						 var token = $routeParams['token'];
 
-						 $scope.clicked_game = function (xpos, ypos) {
+						 $scope.gameClicked = function (game) {
+							 var callback = function(data) { if (data.data['valid']) { $location.path('/play').search('game',data.data['game']).search('token',token); }  };
+							 var fallback = function() {};
+							 srvInfo.doGetGame(callback, fallback, token, game);
 						 };
 
 						 $scope.REFRESH_INTERVAL = 1000;
 						 var refresh = function() {
-							$timeout(refresh, $scope.REFRESH_INTERVAL); //start calling the service
+							 var callback = function(data) { $scope.gamelist = data.data['games']; $scope.gamelist.push('New Game'); };
+							 var fallback = function() {};
+							 srvInfo.doGetGames(callback, fallback, token);
+							 timeout_promise = $timeout(refresh, $scope.REFRESH_INTERVAL); //start calling the service
 						 };
+
+						 $scope.$on('$locationChangeStart', function(){
+  							 $timeout.cancel(timeout_promise);
+						 });
 							
-					 	 $timeout(refresh, 0); //start calling the service
+					 	 var timeout_promise = $timeout(refresh, 0); //start calling the service
 					}]);
