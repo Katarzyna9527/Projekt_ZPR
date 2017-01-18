@@ -1,0 +1,19 @@
+<!--
+	@file about.html
+    @brief the AngularJS partial 'about'
+-->
+
+<center>
+
+<h1>{{'Login or register' | translate}}</h1>
+<div ng-controller="loginController">
+<form ng-submit="on_submit_login()">
+<br>
+<input name="account_name" ng-model="account_name" required>
+<br>
+<input type="password" name="account_password" ng-model="account_password" required>
+<br><br>
+<input type="submit">
+</form>
+</div>
+</center>
