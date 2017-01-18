@@ -10,11 +10,8 @@ angular.module('myApp', ['ngRoute', 'pascalprecht.translate', 'myAppControllers'
                  $routeProvider.when('/play', {
                      templateUrl: 'views/play.html',
                  });
-                 $routeProvider.when('/main', {
-                     templateUrl: 'views/main.html',
-                 });
                  $routeProvider.otherwise( {
-                     redirectTo: '/main'
+                     redirectTo: '/login'
                  });
                  $translateProvider.useStaticFilesLoader({
                       prefix: 'lang/',
