@@ -35,3 +35,57 @@ body {
     padding: 5px;
 }
 
+.gameboard {
+	
+}
+
+.gamerow {
+
+}
+
+.gamecell {
+	color: #000;
+	border: 1px solid lightgrey;
+	height: 4em;
+	width: 4em;
+}
+
+.gamecell:hover {
+	background-color:#0000ff!important;
+	color:#000!important;
+}
+
+.gamediv {
+}
+
+.boardtitle {
+	text-align: center;
+}
+
+.shiptileup {
+	background-color: #f11;
+}
+
+.shiptiledown {
+	background-color: #333;
+}
+
+.shiptile {
+	background-color: #66f;
+}
+
+.shottilehit {
+	background-color: #f11!important;
+}
+
+.shottilemiss {
+	background-color: #222!important;
+}
+
+.shottile {
+	background-color: #33b;
+}
+
+.enemy.true {
+	background-color: #66f;
+}
