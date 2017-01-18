@@ -14,8 +14,20 @@ def userMove(params):
 	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],")"
 	return { "valid": 1, "hit": 0 }
 
+
+
 def getBoards(params): # uwaga odwrocone osie (x/y)
-	return { "ships": [[],[None, None, "up", "up", "down"],[],[],[],[],[],[],[],[]], "shots": [[],[],[None, "hit"],[],[],[],[],[],[],[]], "turn": False }
+	ships = [10][]
+	shots = [10][]
+
+	ships[3][1] = "up"
+	ships[4][1] = "up"
+	ships[5][1] = "down"
+	
+	shots[6][2] = "hit"
+	shots[6][3] = "miss"
+
+	return { "ships": ships, "shots": shots, "turn": True, "winner": None }
 
 def registerUser(params):
 	conn=psycopg2.connect(database=version.models.getDBNAME(), user=version.models.getDBUser, password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
