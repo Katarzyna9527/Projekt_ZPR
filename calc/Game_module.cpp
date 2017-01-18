@@ -4,7 +4,7 @@
 
 //using namespace boost::python;
 
-BOOST_PYTHON_MODULE(Game_cpp){
+BOOST_PYTHON_MODULE(calc){
 
 	boost::python::enum_<Direction>("Direction")
 		.value( "RIGHT", RIGHT )

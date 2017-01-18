@@ -18,7 +18,7 @@ void Game::changePlayer(){
 	playerPink_->setActive();
 }
 
-bool** Game::getBoardOfShips(const Color& color) const{
+bool** Game::getBoardOfShips(const Color& color){
 	if(color == BLUE) return statePlayerBlue_->stateOfShips;
 	else return statePlayerPink_->stateOfShips;
 }
