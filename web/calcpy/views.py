@@ -62,9 +62,8 @@ def loginUser(params):
 		rows=cur.fetchall()
 		for row in rows:
 			if row[1]==params["name"] and row[2]==params["pass"]:
-				putPlayer(params["name"], token)
 				token = row[0]
-				raise
+				putPlayer(params["name"], token)
 	finally:
 		conn.close()
 		L.l.release()
@@ -123,16 +122,19 @@ def registerUser(params):
 			conn.commit()
 		cur.execute("SELECT ID,LOGIN FROM GAME_USERS")
 		rows=cur.fetchall()
-		newId=0
+		newId=1
 		for row in rows:
 			if row[1]==params["name"]:
-				raise
+				token=1
 			if row[0]>=newId:
 				newId=row[0]+1
-		cur.execute(("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) VALUES ({},\'{}\',\'{}\',0,0)").format(newId,params["name"],params["pass"]))
-		conn.commit()
-		token = newId
-		putPlayer(params["name"], token)
+		if token==None:
+			cur.execute(("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) VALUES ({},\'{}\',\'{}\',0,0)").format(newId,params["name"],params["pass"]))
+			conn.commit()
+			token = newId			
+			putPlayer(params["name"], token)
+		else:
+			token = None
 	finally:
 		conn.close()
 		L.l.release()
