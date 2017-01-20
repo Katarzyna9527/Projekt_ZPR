@@ -28,6 +28,7 @@ class L:
 def loginUser(params):
 	print "Got name ",params["name"]," password ",params["pass"]
 	L.l.acquire()
+	token=None
 	try:
 		conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
 		cur=conn.cursor()
@@ -46,12 +47,12 @@ def loginUser(params):
 		for row in rows:
 			if row[1]==params["name"] and row[2]==params["pass"]:
 				conn.close()
-				L.l.release()
-				return { "session-token": row[0] }
+				token = row[0]
+				except
 		conn.close()
 	finally:
 		L.l.release()
-	return { "session-token": None }
+	return { "session-token": token }
 
 def userMove(params):
 	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],")"
