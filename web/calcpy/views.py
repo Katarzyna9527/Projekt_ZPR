@@ -130,6 +130,7 @@ def registerUser(params):
 				newId=row[0]+1
 		cur.execute(("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) VALUES ({},\'{}\',\'{}\',0,0)").format(newId,params["name"],params["pass"]))
 		conn.commit()
+		token = newId
 		PlayerList.putPlayer(params["name"], token)
 	finally:
 		conn.close()
