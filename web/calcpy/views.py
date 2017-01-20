@@ -109,13 +109,13 @@ def registerUser(params):
 		rows=cur.fetchall()
 		newId=0
 		for row in rows:
-			if row[1]==login:
+			if row[1]==params["name"]:
 				conn.close()
 				L.l.release()
 				return  { "session-token": None }
 			if row[0]>=newId:
 				newId=row[0]+1
-		cur.execute("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) \ VALUES (%s,%s,%s,0,0)",(newId,params["name"],params["pass"]))
+		cur.execute(("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) VALUES ({},\'{}\',\'{}\',0,0)").format(newId,params["name"],params["pass"]))
 		conn.commit()
 		conn.close()
 	finally:
