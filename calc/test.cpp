@@ -1,3 +1,7 @@
+/*!
+ * @file test.cpp
+ * @brief File contains test for all public methods for Game, Move, Ship, State, Player.
+ */
 #include <boost/test/included/unit_test.hpp>
 #include <iostream>
 #include "Game.hpp"
@@ -136,14 +140,14 @@ void test_case9(){
 	Direction dir;
 	int shipsOk = 0;
 	int shipsSpaceOk = 0;
-	for(auto i=player->begin(); i!=player->end(); ++i){
-		x = (*i)->getX();
-		y = (*i)->getY();
-		length = (*i)->getLength();
-		dir = (*i)->getDirection();
+	std::for_each(player->begin(), player->end(), [&](const std::shared_ptr<Ship>& i){
+		x = i->getX();
+		y = i->getY();
+		length = i->getLength();
+		dir = i->getDirection();
 		if(checkShip(x,y,length,dir,state->getStateOfShips()))++shipsOk;
 		if(checkShipSpace(x,y,length,dir,state->getStateOfShips()))++shipsSpaceOk;
-	}
+	});
 	BOOST_CHECK_EQUAL(shipsOk,10);
 	BOOST_CHECK_EQUAL(shipsSpaceOk,10);
 }

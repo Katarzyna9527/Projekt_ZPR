@@ -40,10 +40,10 @@ void Game::executeMove(std::shared_ptr<Move> move){
 	if(move->getColor() == BLUE) {
 		statePlayerBlue_->updateState(move->getX(), move->getY());
 		if(statePlayerPink_->getStateOfShips()[move->getX()][move->getY()] == 1){			
-			for (auto i = playerPink_->begin() ; i != playerPink_->end();++i)	
+			for_each(playerPink_->begin(), playerPink_->end(),[&](std::shared_ptr<Ship>& i)	
 			{
-				if((*i)->isHit(move->getX(), move->getY())) (*i)->checkIsAlive();
-			}		
+				if(i->isHit(move->getX(), move->getY())) i->checkIsAlive();
+			});		
 		}
 			
 	}
@@ -51,10 +51,10 @@ void Game::executeMove(std::shared_ptr<Move> move){
 		statePlayerPink_->updateState(move->getX(), move->getY());
 		
 		if(statePlayerBlue_->getStateOfShips()[move->getX()][move->getY()] == 1){			
-			for (auto i = playerBlue_->begin() ; i != playerBlue_->end();++i)	
+			for_each(playerBlue_->begin(), playerBlue_->end() ,[&](std::shared_ptr<Ship>& i)	
 			{
-				if((*i)->isHit(move->getX(), move->getY())) (*i)->checkIsAlive();
-			}		
+				if(i->isHit(move->getX(), move->getY())) i->checkIsAlive();
+			});		
 		}
 	}
 	
@@ -65,16 +65,16 @@ void Game::executeMove(std::shared_ptr<Move> move){
 bool Game::checkVictory(const Color& color) const{
   int counter = 0;
 	
+	auto count_not_alive = [](const std::shared_ptr<Ship>& i){
+		return !i->getIsAlive();
+	};
+
 	if(color == BLUE){
-		for(auto i = playerPink_->begin() ; i != playerPink_->end();++i){
-			if((*i)->getIsAlive() == false)++counter;
-		}	
+		counter = count_if(playerPink_->begin(), playerPink_->end(), count_not_alive);	
 		if(playerPink_->getVectorSize() == counter){playerBlue_->setVictory(); return true;}
 	}
 	else{
-		for(auto i = playerBlue_->begin() ; i != playerBlue_->end();++i){
-			if((*i)->getIsAlive() == false)++counter;
-		}	
+		counter = count_if(playerBlue_->begin(), playerBlue_->end(), count_not_alive);	
 		if(playerBlue_->getVectorSize() == counter){playerPink_->setVictory(); return true;}
 	}
 	

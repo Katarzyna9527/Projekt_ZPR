@@ -31,10 +31,10 @@ void State::initializeState(std::shared_ptr<Player> player){
 	}
 
 
-	for (auto i = player->begin() ; i != player->end(); ++i){	
-		loc = findLocation((*i)->getLength(),boardOfForbiddenSettings);
-		setShip(*i,boardOfForbiddenSettings,loc, (*i)->getLength());
-	}
+	for_each(player->begin() ,player->end(), [&](std::shared_ptr<Ship>& i){	
+		loc = findLocation(i->getLength(),boardOfForbiddenSettings);
+		setShip(i,boardOfForbiddenSettings,loc, i->getLength());
+	});
 	
 }
 

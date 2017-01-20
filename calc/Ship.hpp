@@ -37,10 +37,11 @@ int shipLength_;
  *  flag is false when Ship has Sank
  */
 bool isAlive_;
+
 /*!
- *  tabel of component damages, size = length of Ship 
+ *  vector of component damages, size = length of Ship 
  */
-bool *damages;
+std::vector<bool> damages;
 
 public:
 

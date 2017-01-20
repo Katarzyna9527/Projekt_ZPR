@@ -9,8 +9,7 @@ Ship::Ship(int shipLength) : shipLength_(shipLength){
 	y_ = 0;
 	direction_ = RIGHT;
 	isAlive_ = true;
-	damages = new bool[shipLength];
-	for(int i=0; i<shipLength; ++i) damages[i] = 0;
+	for(int i=0; i<shipLength; ++i) damages.push_back(0);
 }
 
 void Ship::setLocation(const int& x, const int& y, const Direction& dir){
