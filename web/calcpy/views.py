@@ -13,17 +13,18 @@ class GameList:
 
 class PlayerList:
 	players = {}
-	def putPlayer(self, name, token):
-		players[name] = {"token": token, "expiry": dt.datetime.now() + dt.timedelta(hours=2)}
 
-	def getPlayer(self, name):
-		if name not in players.keys():
-			return None
-		player = players[name]
-		if players[name]["expiry"] > dt.datetime.now():
-			return None
-		players[name]["expiry"] = dt.datetime.now() + dt.timedelta(hours=2)
-		return players[name]
+def putPlayer(name, token):
+	PlayerList.players[name] = {"token": token, "expiry": dt.datetime.now() + dt.timedelta(hours=2)}
+
+def getPlayer(name):
+	if name not in PlayerList.players.keys():
+		return None
+	player = PlayerList.players[name]
+	if PlayerList.players[name]["expiry"] > dt.datetime.now():
+		return None
+	PlayerList.players[name]["expiry"] = dt.datetime.now() + dt.timedelta(hours=2)
+	return PlayerList.players[name]
 
 class GameStub:
 	BOARDSIZE = 10
@@ -61,7 +62,7 @@ def loginUser(params):
 		rows=cur.fetchall()
 		for row in rows:
 			if row[1]==params["name"] and row[2]==params["pass"]:
-				PlayerList.putPlayer(params["name"], token)
+				putPlayer(params["name"], token)
 				token = row[0]
 				raise
 	finally:
@@ -131,7 +132,7 @@ def registerUser(params):
 		cur.execute(("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) VALUES ({},\'{}\',\'{}\',0,0)").format(newId,params["name"],params["pass"]))
 		conn.commit()
 		token = newId
-		PlayerList.putPlayer(params["name"], token)
+		putPlayer(params["name"], token)
 	finally:
 		conn.close()
 		L.l.release()
