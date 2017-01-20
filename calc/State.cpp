@@ -1,28 +1,21 @@
+/*!
+ *  @file   State.cpp
+ *  @brief File contains implemented methods of a State class.
+ */
 #include "State.hpp"
 
 State::State(std::shared_ptr<Player> player){
 
-	for (int i = 0; i < BOARD_SIZE; ++i)
-	{
+	for (int i = 0; i < BOARD_SIZE; ++i){
 		stateOfMoves.push_back( std::vector<bool>() );
 		stateOfShips.push_back( std::vector<bool>() );
 		for (int j = 0; j < BOARD_SIZE; ++j){
-		stateOfMoves[i].push_back(0);
-		stateOfShips[i].push_back(0);}
-	}
+			stateOfMoves[i].push_back(0);
+			stateOfShips[i].push_back(0);
+		}//for
+	}//for
 	
-initializeState(player);
-
-	for(int i=0; i<BOARD_SIZE;++i)
-		{for(int j=0; j<BOARD_SIZE;++j)
-			{
-				std::cout<<stateOfShips[j][i]<<" ";	
-			}
-std::cout<<std::endl;		
-}
-std::cout<<std::endl;
-std::cout<<std::endl;
-std::cout<<std::endl;
+    initializeState(player);
 }
 
 void State::initializeState(std::shared_ptr<Player> player){
@@ -100,12 +93,12 @@ Location State::findLocation(const int& length,const Board& board){
 					fieldFree = false; 
 					badNumber = false;
 					break;
-				}
+				}//if
 				
 				i--;				
-			}
-		}	
-	}
+			}//else
+		}//while	
+	}//while
 	location.x = pos.x;
 	location.y = pos.y;
 	location.direction = dir;
@@ -117,21 +110,23 @@ void State::setShip(std::shared_ptr<Ship> ship, Board& tabOfForbiddenPos, const 
 	
 	ship->setLocation(loc.x, loc.y, loc.direction);
 	
+	//filling tabOfForbidden Positions along the ship length  
 	for(int i=0; i<length; ++i){
 		if(loc.direction == RIGHT){
 			stateOfShips[loc.x+i][loc.y] = 1;
 			tabOfForbiddenPos[loc.x+i][loc.y] = 1;	
 			if(loc.y > 0) tabOfForbiddenPos[loc.x+i][loc.y-1] = 1;
 			if(loc.y < BOARD_SIZE-1) tabOfForbiddenPos[loc.x+i][loc.y+1] = 1;
-		}
+		}//if
 		else{
 			stateOfShips[loc.x][loc.y+i] = 1;
 			tabOfForbiddenPos[loc.x][loc.y+i] = 1;	
 			if(loc.x > 0)tabOfForbiddenPos[loc.x-1][loc.y+i] = 1;
 			if(loc.x < BOARD_SIZE-1)tabOfForbiddenPos[loc.x+1][loc.y+i] = 1;	
-		}	
-	}
+		}//else	
+	}//for
 	
+	//fiiling tabOfForbidden Positions at the begging and end of Ship
 	if(loc.direction == RIGHT){
 		if(loc.x > 0){
 			tabOfForbiddenPos[loc.x-1][loc.y] = 1;
@@ -161,7 +156,7 @@ void State::setShip(std::shared_ptr<Ship> ship, Board& tabOfForbiddenPos, const 
 }
 
 void State::updateState(const int& x, const int& y){
-stateOfMoves[x][y] = 1;
+	stateOfMoves[x][y] = 1;
 }	
 
 

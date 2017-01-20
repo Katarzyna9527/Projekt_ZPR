@@ -1,3 +1,7 @@
+/*!
+ *  @file   Player.cpp
+ *  @brief File contains implemented methods of a Player class.
+ */
 #include "Player.hpp"
 Player::Player(Color color, bool active = false) :color_(color), active_(active){
 

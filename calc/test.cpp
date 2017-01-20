@@ -7,6 +7,7 @@ using namespace boost::unit_test;
 const int Length_4 = 4;
 const int Length_2 = 2;
 
+//function use to testing random function of setting Ships
 bool checkShip(const int& x, const int& y,const int& length,const Direction& dir,const Board& board){
 	for(int i=0; i<length; ++i){
 		if(dir == RIGHT && board[x+i][y] == 0)return false;
@@ -15,7 +16,7 @@ bool checkShip(const int& x, const int& y,const int& length,const Direction& dir
 return true;
 }
 
-
+//function use to testing random function of setting Ships
 bool checkShipSpace(const int& x, const int& y,const int& length,const Direction& dir,const Board& board){
 	int xPom = x;	
 	int yPom = y;	

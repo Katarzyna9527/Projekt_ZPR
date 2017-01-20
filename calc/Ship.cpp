@@ -1,6 +1,9 @@
+/*!
+ *  @file   Ship.cpp
+ *  @brief File contains implemented methods of a Ship class.
+ */
 #include "Ship.hpp"
 
-Ship::Ship(){}
 Ship::Ship(int shipLength) : shipLength_(shipLength){
 	x_ = 0;
 	y_ = 0;
@@ -22,15 +25,15 @@ bool Ship::isHit(const int& x, const int& y){
 			if(x_+i == x && y_ == y){
 				damages[i] = 1;
 				return true;
-			}
-		}
+			}//if
+		}//if
 		else{
 			if(x_ == x && y_+i == y){
 				damages[i] = 1;
 				return true;
-			}	
-		}
-	}
+			}//if	
+		}//if
+	}//for
 	return false;
 }
 
@@ -38,7 +41,7 @@ void Ship::checkIsAlive(){
 	int counter = 0;
 	for(int i=0; i<shipLength_; ++i){
 		if(damages[i] == 1) ++counter;
-	}
+	}//for
 	if(counter == shipLength_) isAlive_ = false;
 
 }
