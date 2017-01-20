@@ -5,10 +5,25 @@
 import psycopg2
 import version.models
 import threading
+import datetime as dt
 
 class GameList:
 	cid = 1
 	games = {}
+
+class PlayerList:
+	players = {}
+	def putPlayer(self, name, token):
+		players[name] = {"token": token, "expiry": dt.datetime.now() + dt.timedelta(hours=2)}
+
+	def getPlayer(self, name):
+		if name not in players.keys():
+			return None
+		player = players[name]
+		if players[name]["expiry"] > dt.datetime.now():
+			return None
+		players[name]["expiry"] = dt.datetime.now() + dt.timedelta(hours=2)
+		return players[name]
 
 class GameStub:
 	BOARDSIZE = 10
@@ -60,8 +75,6 @@ def userMove(params):
 
 def getBoards(params): # uwaga odwrocone osie (x/y)
 	name = params["game"]
-	print params
-	print GameList.games
 	if name not in GameList.games.keys():
 		return {"valid": False}
 	game = GameList.games[name]
