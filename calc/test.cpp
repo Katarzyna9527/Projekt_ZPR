@@ -195,7 +195,7 @@ void test_case14(){
 test_suite* init_unit_test_suite( int argc, char * argv[] )
 {
    
-	test_suite *ts0 = BOOST_TEST_SUITE( "CheckPlayersSuite" );
+	test_suite *ts0 = BOOST_TEST_SUITE( "gameTestsSuite" );
 	ts0->add( BOOST_TEST_CASE( & test_case1 ) );
 	ts0->add( BOOST_TEST_CASE( & test_case2 ) );
    	ts0->add( BOOST_TEST_CASE( & test_case3 ) );

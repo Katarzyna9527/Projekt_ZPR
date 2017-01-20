@@ -25,11 +25,10 @@ public:
 Game();
  
 Color whichPlayerNow() const;
-//bool** getBoardOfShips(const Color& color);
 bool checkMove(std::shared_ptr<Move> move) const; 
 void executeMove(std::shared_ptr<Move> move); //wykonuje ruch ktory juz jest poprawny
 bool checkVictory(const Color& color) const;
-//Board getBoardOfShipsSettings(const Color& color)const; 
+Board getBoardOfShipsSettings(const Color& color)const; 
 
 };
 
