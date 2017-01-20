@@ -61,11 +61,11 @@ def loginUser(params):
 		rows=cur.fetchall()
 		for row in rows:
 			if row[1]==params["name"] and row[2]==params["pass"]:
-				conn.close()
+				PlayerList.putPlayer(params["name"], token)
 				token = row[0]
-				except
-		conn.close()
+				raise
 	finally:
+		conn.close()
 		L.l.release()
 	return { "session-token": token }
 
@@ -106,6 +106,7 @@ def getGame(params):
 def registerUser(params):
 	print "Got name ",params["name"]," password ",params["pass"]
 	L.l.acquire()
+	token = None
 	try:
 		conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
 		cur=conn.cursor()
@@ -124,15 +125,14 @@ def registerUser(params):
 		newId=0
 		for row in rows:
 			if row[1]==params["name"]:
-				conn.close()
-				L.l.release()
-				return  { "session-token": None }
+				raise
 			if row[0]>=newId:
 				newId=row[0]+1
 		cur.execute(("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) VALUES ({},\'{}\',\'{}\',0,0)").format(newId,params["name"],params["pass"]))
 		conn.commit()
-		conn.close()
+		PlayerList.putPlayer(params["name"], token)
 	finally:
+		conn.close()
 		L.l.release()
-	return { "session-token": newId }
+	return { "session-token": token}
 
