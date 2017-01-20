@@ -23,8 +23,8 @@ if(platform.system() == "Linux"):
    env.Append( LIBPATH = [Dir('/usr/lib/python2.7'),
                           Dir('.') ] )
 
-   env.Append( CPPFLAGS = '-Wall -pedantic -pthread --std=c++11 ' )
-   env.Append( LINKFLAGS = '-Wall -pthread --std=c++11  ' )
+   env.Append( CPPFLAGS = '-Wall -pedantic -pthread --std=c++14 ' )
+   env.Append( LINKFLAGS = '-Wall -pthread --std=c++14  ' )
 
    env.Append( LIBS = [ 'boost_python', 'boost_thread',  'boost_chrono',  'boost_system' ] )
 elif(platform.system() == "Windows"):
@@ -48,7 +48,7 @@ elif(platform.system() == "Windows"):
    env_dll.Append( CPPFLAGS = ' /D "CALC_EXPORTS" ')
 
 #build C++ library
-cpplib = env_dll.SharedLibrary( target = 'calc', source = ['../calc/Ship.cpp', '../calc/Player.cpp','../calc/Game.cpp','../calc/State.cpp', '../calc/Move.cpp', '../calc/Game_module.cpp', '../calc/test.cpp' ])
+cpplib = env_dll.SharedLibrary( target = 'calc', source = ['../calc/Ship.cpp', '../calc/Player.cpp','../calc/Game.cpp','../calc/State.cpp', '../calc/Game_module.cpp', '../calc/test.cpp' ])
 if(platform.system() == "Linux"):
    target = '../build_web/calcpy/calc.so'
 elif(platform.system() == "Windows"):

@@ -1,14 +1,16 @@
 #include "Game.hpp"
 
-Game::Game(){		
+Game::Game(){			
 
-	playerBlue_ = new Player(BLUE, false);
-	playerPink_ = new Player(PINK, true);
-	statePlayerBlue_ = new State(playerBlue_);
-	statePlayerPink_ = new State(playerPink_);
+	//randGen.seed(static_cast<unsigned int>(std::time(0)));
+	playerBlue_ = std::make_shared<Player>(BLUE, false);
+	playerPink_ = std::make_shared<Player>(PINK, true);
+	statePlayerBlue_ = std::make_shared<State>(playerBlue_);
+	statePlayerPink_ = std::make_shared<State>(playerPink_);
 }
 
-Color Game::whichPlayerNow(){
+
+Color Game::whichPlayerNow() const{
 	if(playerBlue_->isActive() == true)return BLUE;
 	else return PINK;
 }
@@ -18,48 +20,31 @@ void Game::changePlayer(){
 	playerPink_->setActive();
 }
 
-bool** Game::getBoardOfShips(const Color& color){
+/*bool** Game::getBoardOfShips(const Color& color){
 	if(color == BLUE) return statePlayerBlue_->stateOfShips;
 	else return statePlayerPink_->stateOfShips;
-}
+}*/
 
-/*
-Board getBoardOfShipSettings(const Color& color) const{
-
-Board board;
-
-for(int i=0; i<BOARD_SIZE; ++i){
-	for(int j=0; j<BOARD_SIZE; ++j)
-	{
-		board[i][j] = this->getBoardOfShips(color)[i][j]; 
-	}
-return board;
-}
-
-return board;
-
-}
-*/
 
 //sprawdza tylko pole nie sprawdza czy teraz kolej danego gracza
-bool Game::checkMove(Move* move){
+bool Game::checkMove(std::shared_ptr<Move> move) const{
 
-	if(move->getColor() == BLUE && statePlayerBlue_->stateOfMoves[move->getX()][move->getY()] == 1)return false; 
+	if(move->getColor() == BLUE && statePlayerBlue_->getStateOfMoves()[move->getX()][move->getY()] == 1)return false; 
 	else {	
-	if(move->getColor() == PINK && statePlayerPink_->stateOfMoves[move->getX()][move->getY()] == 1)return false; 
+	if(move->getColor() == PINK && statePlayerPink_->getStateOfMoves()[move->getX()][move->getY()] == 1)return false; 
 	else return true;
 	}
 }
 
 // w grze można najpierw setMove, a potem tu zamiat argumentu funkcji zrobić this do przedyskutowania
-void Game::executeMove(Move* move){
+void Game::executeMove(std::shared_ptr<Move> move){
 
 	if(move->getColor() == BLUE) {
 		statePlayerBlue_->updateState(move->getX(), move->getY());
-		if(statePlayerPink_->stateOfShips[move->getX()][move->getY()] == 1){			
-			for (std::vector<Ship*>::iterator i = playerPink_->vectorOfShips.begin() ; i != playerPink_->vectorOfShips.end();++i)	
+		if(statePlayerPink_->getStateOfShips()[move->getX()][move->getY()] == 1){			
+			for (auto i = playerPink_->begin() ; i != playerPink_->end();++i)	
 			{
-				if((*i)->isHit(move->getX(), move->getY())) (*i)->isAlive();
+				if((*i)->isHit(move->getX(), move->getY())) (*i)->checkIsAlive();
 			}		
 		}
 			
@@ -67,10 +52,10 @@ void Game::executeMove(Move* move){
 	else {
 		statePlayerPink_->updateState(move->getX(), move->getY());
 		
-		if(statePlayerBlue_->stateOfShips[move->getX()][move->getY()] == 1){			
-			for (std::vector<Ship*>::iterator i = playerBlue_->vectorOfShips.begin() ; i != playerBlue_->vectorOfShips.end();++i)	
+		if(statePlayerBlue_->getStateOfShips()[move->getX()][move->getY()] == 1){			
+			for (auto i = playerBlue_->begin() ; i != playerBlue_->end();++i)	
 			{
-				if((*i)->isHit(move->getX(), move->getY())) (*i)->isAlive();
+				if((*i)->isHit(move->getX(), move->getY())) (*i)->checkIsAlive();
 			}		
 		}
 	}
@@ -79,26 +64,26 @@ void Game::executeMove(Move* move){
 
 }
 
-bool Game::checkVictory(const Color& color){
+bool Game::checkVictory(const Color& color) const{
  unsigned int counter = 0;
 	
-	if(color == PINK){
-		for(std::vector<Ship*>::iterator i = playerPink_->vectorOfShips.begin() ; i != playerPink_->vectorOfShips.end();++i){
-			if((*i)->isAlive_ == false)++counter;
+	if(color == BLUE){
+		for(auto i = playerPink_->begin() ; i != playerPink_->end();++i){
+			if((*i)->getIsAlive() == false)++counter;
 		}	
-		if(playerPink_->vectorOfShips.size() == counter) return true;
+		if(playerPink_->getVectorSize() == counter) return true;
 	}
 	else{
-		for(std::vector<Ship*>::iterator i = playerBlue_->vectorOfShips.begin() ; i != playerBlue_->vectorOfShips.end();++i){
-			if((*i)->isAlive_ == false)++counter;
+		for(auto i = playerBlue_->begin() ; i != playerBlue_->end();++i){
+			if((*i)->getIsAlive() == false)++counter;
 		}	
-		if(playerBlue_->vectorOfShips.size() == counter) return true;
+		if(playerBlue_->getVectorSize() == counter) return true;
 	}
 	
 return false;
 }
 
-
+/*
 Board Game::getBoardOfShipsSettings(const Color& color){
 
 Board board;
@@ -114,6 +99,7 @@ b = getBoardOfShips(color);
 
 return board;
 }
+*/
 
-Game::~Game(){}
+//Game::~Game(){}
 

@@ -4,7 +4,7 @@
 #include "Declarations.hpp"
 
 class Ship{
-public:
+private:
 
 int x_;
 int y_;
@@ -13,14 +13,18 @@ int shipLength_;
 bool isAlive_;
 bool *damages;
 
+public:
+
 Ship();
 Ship(int shipLength);
-
-
 void setLocation(const int& x, const int& y, const Direction& dir);
-int getLength(){return shipLength_;}
+int getLength() const {return shipLength_;}
 bool isHit(const int& x, const int& y);
-void isAlive();
+void checkIsAlive();
+int getX() const {return x_;}
+int getY() const {return y_;}
+Direction getDirection() const {return direction_;}
+bool getIsAlive() const {return isAlive_;}
 
 };
 

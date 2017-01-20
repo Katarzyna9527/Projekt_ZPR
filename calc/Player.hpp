@@ -2,18 +2,26 @@
 #define PLAYER_HPP
 
 #include "Ship.hpp"
+#include "Declarations.hpp"
 
 class Player{
-public:
+private:
 Color color_;
 bool active_;
-std::vector<Ship*> vectorOfShips; 
+bool victory_;
+std::vector<std::shared_ptr<Ship>> vectorOfShips; 
 
+
+public:
 Player();
 Player(Color color, bool active);
-bool amIDead();
-bool isActive();
+bool isActive() const;
 void setActive();
+bool getVictory() const;
+void setVictory();
+std::vector<std::shared_ptr<Ship>>::iterator begin();
+std::vector<std::shared_ptr<Ship>>::iterator end();
+int getVectorSize() const;
 
 };
 

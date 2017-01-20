@@ -6,8 +6,12 @@
 #include <cstdlib>
 #include <iostream>
 #include <algorithm>
+#include <memory>
+#include "boost/random.hpp"
+#include <ctime>
 
-const int BOARD_SIZE = 10;
+const static int BOARD_SIZE = 10;
+//static boost::random::mt19937 randGen;
 
 enum Color {PINK,BLUE};
 enum Direction {RIGHT,DOWN};
