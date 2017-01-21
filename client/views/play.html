@@ -24,6 +24,13 @@
 
 </div>
 
+<div class="game_won_{{won}}">
+	<div ng-if="won === true"> Game won! Congratulations!</div>
+	<div ng-if="won === false"> Game lost! Keep trying!</div>
+	<br>
+	<div> Your win rate is {{winrate}}</div>
+</div>
+
 </div>
 
 </center>

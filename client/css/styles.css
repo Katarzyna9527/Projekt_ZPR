@@ -46,8 +46,8 @@ body {
 .gamecell {
 	color: #000;
 	border: 1px solid lightgrey;
-	height: 4em;
-	width: 4em;
+	height: 3em;
+	width: 3em;
 }
 
 .gamecell:hover {
@@ -123,4 +123,26 @@ body {
 
 .gamelist_element:hover {
 	background-color: #60f060;
+}
+
+.login_fail_div {
+	color: darkred;
+	size: 2em;
+	text-align: center;
+}
+
+.game_won_ {
+	opacity: 0;
+}
+
+.game_won_true,.game_won_false {
+	color: darkgreen;
+	size: 2em;
+	padding-bottom: 1em;
+	padding-top: 1em;
+	text-align: center;
+}
+
+.game_won_false {
+	color: darkred;
 }

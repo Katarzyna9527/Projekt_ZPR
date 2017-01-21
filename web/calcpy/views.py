@@ -140,3 +140,5 @@ def registerUser(params):
 		L.l.release()
 	return { "session-token": token}
 
+def getPlayerInfo(params):
+	return { "win_ratio": 0.5 }
