@@ -1,7 +1,7 @@
 ## @file calcpy/views.py
 #  @brief calculation library interface to client
 
-
+from calc import *
 import psycopg2
 import version.models
 import threading
@@ -31,12 +31,48 @@ class GameStub:
 	def __init__(self):
 		self.ships = [[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
 		self.shots = [[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
-		self.ships[3][1] = "up"
-		self.ships[4][1] = "up"
-		self.ships[5][1] = "down"
+		#self.ships[3][1] = "up"
+		#self.ships[4][1] = "up"
+		#self.ships[5][1] = "down"
+		#self.shots[6][2] = "hit"
+		#self.shots[6][3] = "miss"
 		
-		self.shots[6][2] = "hit"
-		self.shots[6][3] = "miss"
+		self.game=Game()
+		self.shipsB=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
+		self.shipsP=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
+		m=Matrix()
+		v=Vector()
+		v[:]=[True,True,True,True,True,True,True,True,True,True]
+		m[:]=[v,v,v,v,v,v,v,v,v,v]
+		out="BLUE\n"
+		m=self.game.getBoardOfShipsSettings(Color.BLUE)
+		for line in m:
+			for column in line:
+				if column :
+					out+="1"
+				else:
+					out+="0"
+			out+="\n"
+		print(out)
+		for i in range(0,GameStub.BOARDSIZE):
+			for j in range(0,GameStub.BOARDSIZE):
+				if m[i][j]==1:
+					self.shipsB[j][i]="up"
+		out="PINK\n"
+		m=self.game.getBoardOfShipsSettings(Color.PINK)	
+		for line in m:
+			for column in line:
+				if column :
+					out+="1"
+				else:
+					out+="0"
+			out+="\n"
+		print(out)
+		for i in range(0,GameStub.BOARDSIZE):
+			for j in range(0,GameStub.BOARDSIZE):
+				if m[i][j]==1:
+					self.shipsP[j][i]="up"
+		self.ships=self.shipsB
 	
 class L:
 	l=threading.Lock()

@@ -3,40 +3,36 @@
 
 
 #include <cstdlib>
+#include <iostream>
 #include <vector>
-#include "Player.hpp"
+#include "State.hpp"
 #include "Move.hpp"
 #include "Declarations.hpp"
 
 class Game{
-private:
-
-//Board vector of vectors
-Board boardPink_;
-Board boardBlue_;
-Board board_;
-Player playerBlue_;
-Player playerPink_;
-Move move_;
 
 public:
 
- const int BOARD_SIZE = 10;
- 
+Player* playerBlue_;
+Player* playerPink_;
+State* statePlayerBlue_;
+State* statePlayerPink_;
+//Move* move_;
 
+void changePlayer();
 
-  Game();
- ~Game();
-  void addPlayer(const Player &player);
-  void fillBoard(); //ustawianie wszystkich statków na poczatku gry
-  Board getBoard(const int &id);
-  bool hasPlayer(const int &id);
-  bool hasBothPlayers();
-  int checkForWinners(); //zwraca id
-  void updateBoard();
-  void executeMove();
-  void setMove();
+public:
+
+Game();
+~Game();
  
+Color whichPlayerNow();
+bool** getBoardOfShips(const Color& color);
+bool checkMove(Move* move); 
+void executeMove(Move* move); //wykonuje ruch ktory juz jest poprawny
+bool checkVictory(const Color& color);
+Board getBoardOfShipsSettings(const Color& color); 
+
 };
 
 

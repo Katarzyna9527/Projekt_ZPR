@@ -4,17 +4,19 @@
 #include "Declarations.hpp"
 
 class Move{
-public:
+private:
 
 int x_;
 int y_;
 Color color_;
 
-Move();
+public:
+Move(){};
 Move(int x, int y, Color color) : x_(x), y_(y), color_(color) {}
-void setPoint(int x, int y, Color color){ x_ = x; y_ = y; color_ = color;};
-
-
+void setMove(int x, int y, Color color);
+int getX()const {return x_;}
+int getY()const {return y_;}
+int getColor()const {return color_;}
 };
 
 

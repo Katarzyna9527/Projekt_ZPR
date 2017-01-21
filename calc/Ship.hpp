@@ -8,15 +8,19 @@ public:
 
 int x_;
 int y_;
-std::string direction_;
+Direction direction_;
 int shipLength_;
 bool isAlive_;
-bool damages[4];
+bool *damages;
 
 Ship();
-Ship(int x, int y, std::string direction, int shipLength, bool isAlive);
+Ship(int shipLength);
 
-void checkComponentDamages(int x, int y);
+
+void setLocation(const int& x, const int& y, const Direction& dir);
+int getLength(){return shipLength_;}
+bool isHit(const int& x, const int& y);
+void isAlive();
 
 };
 
