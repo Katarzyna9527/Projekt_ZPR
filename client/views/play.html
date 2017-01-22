@@ -4,8 +4,8 @@
 -->
 
 <center>
-<h1>{{'The game board' | translate}}</h1>
 <div ng-controller="gameController">
+<h1>{{'Board' | translate}}{{" "+game}}</h1>
 
 <div class="gameboard">
 
@@ -30,6 +30,10 @@
 	<br>
 	<div> Your win rate is {{winrate}}</div>
 </div>
+<div class="time_left_div">
+	Time left: {{time_left}}
+</div>
+
 
 </div>
 

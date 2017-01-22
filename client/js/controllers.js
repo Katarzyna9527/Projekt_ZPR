@@ -39,54 +39,64 @@ angular.module('myAppControllers', [])
 						 $scope.shiplist = [[],[],[],[],[],[],[],[],[],[]];
 						 $scope.shotlist = [[],[],[],[],[],[],[],[],[],[]];
 						 var token = $routeParams['token'];
-						 var game = $routeParams['game'];
+						 $scope.game = $routeParams['game'];
+						 $scope.time_left = "-";
 
 						 $scope.turn = true;
 						 $scope.clicked_gamecell = function (xpos, ypos) {
 							 if ($scope.shotlist[xpos][ypos]) { console.log("Cannot shoot there"); return; }
 							 if ($scope.turn == false) { console.log("Not your turn"); return; }
+
+							 $timeout.cancel($scope.timeout_promise);
 							 srvInfo.doUserMove(function(data) { 
 								 if (data.data["valid"] != 1) { 
-									 return; }
-								 if (data.data["hit"] == 1) { 
-									 $scope.shotlist[xpos][ypos]="hit"; }
-								 else {
-									 $scope.shotlist[xpos][ypos]="miss"; }
+									 return;
+								 }
 
-								 $scope.turn = false;
-								 $scope.REFRESH_INTERVAL = 2000;
-								 }, function() {}, xpos, ypos, token, game);
+								 $scope.timeout_promise = $timeout(refresh, 0);
+								 }, function() {}, xpos, ypos, token, $scope.game);
 						 };
 
-						 $scope.REFRESH_INTERVAL = 5000;
+						 $scope.REFRESH_INTERVAL = 1000;
 						 var refresh = function() {
 						 	srvInfo.doGetBoards(function(data) {
 								console.log(data);
-								$scope.shiplist = data.data["ships"]; 
-								$scope.shotlist = data.data["shots"];
-								$scope.turn = data.data["turn"];
-								$scope.won = data.data["winner"];
-								if (data.data["winner"] === true || data.data["winner"] === false) {
-									srvInfo.doGetPlayerInfo(function(data) { $scope.winrate = data.data["win_ratio"]; }, function(){}, token);
-  							 		$timeout.cancel(timeout_promise);
+								
+								$scope.turn = false;
+								if (data.data["valid"] === false) {
+									$scope.timeout_promise = $timeout(refresh, $scope.REFRESH_INTERVAL);
 									return;
 								}
 
-								if ($scope.turn) $scope.REFRESH_INTERVAL = 5000;
-								else $scope.REFRESH_INTERVAL = 1000;
-								}, function() {}, token, game);
-					 	 		
-								$timeout(refresh, $scope.REFRESH_INTERVAL); //start calling the service
+								$scope.won = data.data["winner"];
+								$scope.time_left = data.data["time_left"];
+								if (data.data["winner"] === true || data.data["winner"] === false) {
+									srvInfo.doGetPlayerInfo(function(data) { $scope.winrate = data.data["win_ratio"]; }, function(){}, token);
+									$timeout.cancel($scope.timeout_promise);
+									return;
+								}
+
+								$scope.shiplist = data.data["ships"]; 
+								$scope.shotlist = data.data["shots"];
+								$scope.turn = data.data["turn"];
+
+								$scope.timeout_promise = $timeout(refresh, $scope.REFRESH_INTERVAL);
+								}, function() {}, token, $scope.game);
+						 };
+
+						 $scope.onLeave = function() {
+							 $timeout.cancel($scope.timeout_promise);
+							 srvInfo.playerLeft(token, $scope.game);
 						 };
 						 
 						 $scope.$on('$destroy', function(){
-  							 $timeout.cancel(timeout_promise);
+							 $scope.onLeave();
 						 });
 						 $scope.$on('$locationChangeStart', function(){
-  							 $timeout.cancel(timeout_promise);
+							 $scope.onLeave();
 						 });
 							
-					 	 var timeout_promise = $timeout(refresh, 0); //start calling the service
+					 	 $scope.timeout_promise = $timeout(refresh, 0); //start calling the service
 					}])
 	.controller('listController',
 				['$scope',

@@ -12,24 +12,14 @@ class GameList:
 	cid = 1
 	games = {}
 
-class PlayerList:
-	players = {}
-
-def putPlayer(name, token):
-	PlayerList.players[name] = {"token": token, "expiry": dt.datetime.now() + dt.timedelta(hours=2)}
-
-def getPlayer(name):
-	retVal=None
-	if name in PlayerList.players.keys():
-		player = PlayerList.players[name]
-		if PlayerList.players[name]["expiry"] <= dt.datetime.now():
-			PlayerList.players[name]["expiry"] = dt.datetime.now() + dt.timedelta(hours=2)
-			retVal=PlayerList.players[name]
-	return retVal
-
 def getColors(p_isblue):
 	cdict = {True: Color.BLUE, False: Color.PINK}
 	return cdict[p_isblue], cdict[p_isblue == False]
+
+def getToken(password, name):
+	m = hashlib.md5()
+	m.update(str(password)+str(name)+"arydn2")
+	return m.hexdigest()
 
 class GameStub:
 	BOARDSIZE = 10
@@ -37,6 +27,8 @@ class GameStub:
 		self.game=Game()
 		self.ships = {}
 		self.shots = {}
+		self.last_move_time = dt.datetime.now()
+		self.is_over = False
 		for color in [Color.BLUE, Color.PINK]:
 			self.ships[color]=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
 			self.shots[color]=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
@@ -72,7 +64,6 @@ class L:
 	l=threading.Lock()
 
 def loginUser(params):
-	print "Got name ",params["name"]," password ",params["pass"]
 	L.l.acquire()
 	token=None
 	try:
@@ -95,101 +86,13 @@ def loginUser(params):
 			m.update(str(params["pass"]))
 			in_password = m.hexdigest()
 			if row[1]==params["name"] and row[2]==in_password:
-				m = hashlib.md5()
-				m.update(str(params["pass"])+str(params["name"])+"arydn2")
-				token = m.hexdigest()
-				putPlayer(params["name"], token)
+				token = getToken(str(in_password), str(params["name"]))
 	finally:
 		conn.close()
 		L.l.release()
 		return { "session-token": token }
 
-def userMove(params):
-	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],") for game ",params["game"]
-	valid=False
-	hit=False
-	x=int(params["x"])
-	y=int(params["y"])
-	name = params["game"]
-	L.l.acquire()
-	try:
-		if name in GameList.games.keys():
-			game = GameList.games[name]
-			player=params["token"]
-			if player not in game["players"].values():
-				raise
-			(color, oponent_color) = getColors(player == game["players"]["blue"])
-			if game["game"].game.whichPlayerNow() == color:
-				m = Move(x, y, color)
-				if game["game"].game.checkMove(m):
-					game["game"].game.executeMove(m)
-					valid = True
-					if game["game"].ships[oponent_color][x][y] == "up":
-						hit = True
-						game["game"].shots[color][x][y]="hit"
-						game["game"].ships[oponent_color][x][y]="down"
-					else:
-						game["game"].shots[color][x][y] = "miss"
-						
-	finally:
-		L.l.release()
-		return { "valid": valid, "hit": hit }
-
-def getBoards(params): # uwaga odwrocone osie (x/y)
-	name = params["game"]
-	valid=False
-	winner=None
-	ships=None
-	shots=None
-	turn=False
-	player = params["token"]
-	L.l.acquire()
-	try:
-		if name in GameList.games.keys():
-			game = GameList.games[name]
-			if player not in game["players"].values():
-				raise
-			(color, oponent_color) = getColors(player == game["players"]["blue"])
-			ships = game["game"].ships[color]
-			shots = game["game"].shots[color]
-			if game["game"].game.checkVictory(color) == True:
-				winner=True
-			elif game["game"].game.checkVictory(oponent_color) == True:
-				winner=False
-			if game["game"].game.whichPlayerNow()==color:
-				turn=True
-			valid=True
-	finally:
-		L.l.release()
-		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid":valid }
-
-def getGames(params):
-	return { "games": GameList.games.keys() }
-
-def getGame(params):
-	name = params['game']
-	valid = False
-	L.l.acquire()
-	try:
-		if name == 'New Game':
-			name = 'Game '+str(GameList.cid)
-			GameList.cid += 1
-			print(name)
-			GameList.games[name] = { "players": { 'blue': params['token'], 'pink': None }, 'game': GameStub() }
-			valid=True
-		elif name in GameList.games.keys():
-			game = GameList.games[name]
-			for color in ["blue", "pink"]:
-				if (game["players"][color] is None) or (game["players"][color] == params['token']):
-					game["players"][color] = params['token']
-					valid=True
-					break
-	finally:
-		L.l.release()
-		return { "game": name, "valid": valid }
-
 def registerUser(params):
-	print "Got name ",params["name"]," password ",params["pass"]
 	valid = True
 	L.l.acquire()
 	try:
@@ -199,9 +102,9 @@ def registerUser(params):
 		rows=cur.fetchall()
 		if len(rows)==0:
 			cur.execute('''CREATE TABLE GAME_USERS
-	       		(ID INT PRIMARY KEY    NOT NULL,
-	       		LOGIN          TEXT    NOT NULL,
-	       		PASSWORD_HASH  TEXT    NOT NULL,
+				(ID INT PRIMARY KEY    NOT NULL,
+				LOGIN          TEXT    NOT NULL,
+				PASSWORD_HASH  TEXT    NOT NULL,
 			WINS           INT     NOT NULL,
 			LOSES          INT     NOT NULL);''')
 			conn.commit()
@@ -228,6 +131,107 @@ def registerUser(params):
 		else:
 			return { "session-token": None}
 
+
+
+def userMove(params):
+	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],") for game ",params["game"]
+	valid=False
+	x=int(params["x"])
+	y=int(params["y"])
+	name = params["game"]
+	L.l.acquire()
+	try:
+		if name in GameList.games.keys():
+			game = GameList.games[name]
+			player=params["token"]
+			if player not in game["players"].values():
+				raise
+			(color, oponent_color) = getColors(player == game["players"]["blue"])
+			if game["game"].game.whichPlayerNow() == color:
+				m = Move(x, y, color)
+				if game["game"].game.checkMove(m):
+					game["game"].last_move_time = dt.datetime.now()
+					game["game"].game.executeMove(m)
+					valid = True
+					if game["game"].ships[oponent_color][x][y] == "up":
+						game["game"].shots[color][x][y]="hit"
+						game["game"].ships[oponent_color][x][y]="down"
+					else:
+						game["game"].shots[color][x][y] = "miss"
+						
+	finally:
+		L.l.release()
+		return { "valid": valid }
+
+def getBoards(params): # uwaga odwrocone osie (x/y)
+	name = params["game"]
+	valid=False
+	winner=None
+	ships=None
+	shots=None
+	turn=False
+	time_left="-"
+	player = params["token"]
+	L.l.acquire()
+	try:
+		if name in GameList.games.keys():
+			game = GameList.games[name]
+			if player not in game["players"].values():
+				raise
+			for p in game["players"]:
+				if game["players"][p] is None:
+					game["game"].last_move_time = dt.datetime.now()
+					raise
+			valid=True
+
+			(color, oponent_color) = getColors(player == game["players"]["blue"])
+			turning_player = game["game"].game.whichPlayerNow()
+
+			time_left = game["game"].last_move_time - dt.datetime.now() + dt.timedelta(seconds=30)
+			if time_left.seconds < 0 or time_left.seconds > 61:
+				time_left = "0.0"
+				winner = (color != turning_player)
+			else:
+				if turning_player == color:
+					turn = True
+				if game["game"].game.checkVictory(color) == True:
+					winner=True
+					game["game"].is_over = True
+				elif game["game"].game.checkVictory(oponent_color) == True:
+					winner=False
+					game["game"].is_over = True
+
+				ships = game["game"].ships[color]
+				shots = game["game"].shots[color]
+	finally:
+		L.l.release()
+		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid": valid, "time_left": str(time_left).split(".")[0] }
+
+def getGames(params):
+	return { "games": GameList.games.keys() }
+
+def getGame(params):
+	name = params['game']
+	valid = False
+	L.l.acquire()
+	try:
+		if name == 'New Game':
+			name = 'Game '+str(GameList.cid)
+			GameList.cid += 1
+			GameList.games[name] = { "players": { 'blue': params['token'], 'pink': None }, 'game': GameStub() }
+			valid=True
+		elif name in GameList.games.keys():
+			game = GameList.games[name]
+			for color in ["blue", "pink"]:
+				if (game["players"][color] is None) or (game["players"][color] == params['token']):
+					game["players"][color] = params['token']
+					valid=True
+					games["game"].last_move_time = dt.datetime.now()
+					break
+	finally:
+		L.l.release()
+		return { "game": name, "valid": valid }
+
 def getPlayerInfo(params):
 	ratio=0
 	L.l.acquire()
@@ -244,12 +248,19 @@ def getPlayerInfo(params):
 			WINS           INT     NOT NULL,
 			LOSES          INT     NOT NULL);''')
 			conn.commit()
-		cur.execute("SELECT ID,WINS,LOSES FROM GAME_USERS")
+		cur.execute("SELECT PASSWORD_HASH,LOGIN,WINS,LOSES FROM GAME_USERS")
 		rows=cur.fetchall()
 		for row in rows:
-			#if row[0]==params["name"]
-				ratio=(int(row[1]))/(int(row[2]))
+			if getToken(str(row[0]),str(row[1])) == params["token"]:
+				ratio=(float(row[1]))/(float(row[2]))
 	finally:
 		conn.close()
 		L.l.release()
 		return { "win_ratio": ratio }
+
+def onPlayerLeave(params):
+	token = params['token']
+	game = params['game']
+	print "Player ",token," has left the game ",game,"."
+	# if one player left - the other one wins if the game wasnt over,
+	# if both players leaft - destroy the game

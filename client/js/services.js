@@ -26,4 +26,7 @@ angular.module('myAppServices', [])
 				 this.doGetPlayerInfo = function(callback, fallback, token) {
 					 return $http.get(this.baseURL + 'calcpy/getPlayerInfo', { params: { 'token': token } }).then(callback, fallback);
 				 };
+				 this.playerLeft = function(token, game) {
+					 return $http.get(this.baseURL + 'calcpy/onPlayerLeave', { params: { 'token': token, 'game': game } });
+				 };
 			 });
