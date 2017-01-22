@@ -10,8 +10,6 @@ class CalcPyLibraryTestCase(django.test.TestCase):
     """integration test, call C++ library interface from Python"""
 
     def test01checkMove(self):
-"""Test function for calc.checkMove(Move)."""
-"""calc.checkMove(Move) returns True if """
 	g=calc.Game()
 	for x in range(0,10):
 		for y in range(0,10):
@@ -66,6 +64,7 @@ class CalcPyLibraryTestCase(django.test.TestCase):
 
 class CalcPyViewTestCase(django.test.TestCase):
     """module view test"""
+
     def test01getGame(self):
 	params={"game":'New Game',"token":9999}
 	name=views.getGame(params)
