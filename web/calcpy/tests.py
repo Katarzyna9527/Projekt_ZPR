@@ -10,6 +10,8 @@ class CalcPyLibraryTestCase(django.test.TestCase):
     """integration test, call C++ library interface from Python"""
 
     def test01checkMove(self):
+"""Test function for calc.checkMove(Move)."""
+"""calc.checkMove(Move) returns True if """
 	g=calc.Game()
 	for x in range(0,10):
 		for y in range(0,10):
@@ -21,7 +23,6 @@ class CalcPyLibraryTestCase(django.test.TestCase):
 			self.assertEqual(res,True)
 
     def test02executeMove(self):
-	g=calc.Game()
 	for x in range(0,10):
 		for y in range(0,10):
 			m=calc.Move(x,y,calc.Color.PINK)
@@ -38,7 +39,6 @@ class CalcPyLibraryTestCase(django.test.TestCase):
 			self.assertEqual(res,False)
 
     def test03whichPlayerNow(self):
-	g=calc.Game()
 	res=g.whichPlayerNow()
 	self.assertEqual(res,calc.Color.PINK)
 	m=calc.Move(1,1,calc.Color.PINK)
@@ -47,7 +47,6 @@ class CalcPyLibraryTestCase(django.test.TestCase):
 	self.assertEqual(res,calc.Color.BLUE)
 
     def test04getBoardOfShipsSettings(self):
-	g=calc.Game()
 	v=calc.Vector()
 	m1=calc.Matrix()
 	v[:]=[True,True,True,True,True,True,True,True,True,True]
@@ -90,25 +89,25 @@ class CalcPyViewTestCase(django.test.TestCase):
 
     def test04getBoards(self):
 	params={"game":'Game 1',"token":9997}
-	g=views.getBoards(params)
-	self.assertEqual(g["valid"],False)
-	self.assertEqual(g["winner"],None)
-	self.assertEqual(g["ships"],None)
-	self.assertEqual(g["shots"],None)
-	self.assertEqual(g["turn"],False)
+	b=views.getBoards(params)
+	self.assertEqual(b["valid"],False)
+	self.assertEqual(b["winner"],None)
+	self.assertEqual(b["ships"],None)
+	self.assertEqual(b["shots"],None)
+	self.assertEqual(b["turn"],False)
 	params={"game":'Game 1',"token":9999}
-	g=views.getBoards(params)
-	self.assertEqual(g["valid"],True)
-	self.assertEqual(g["winner"],None)
-	self.assertEqual(g["ships"],views.GameList.games[params["game"]]["game"].ships[calc.Color.BLUE])
-	self.assertEqual(g["shots"],views.GameList.games[params["game"]]["game"].shots[calc.Color.BLUE])
-	self.assertEqual(g["turn"],False)
+	b=views.getBoards(params)
+	self.assertEqual(b["valid"],True)
+	self.assertEqual(b["winner"],None)
+	self.assertEqual(b["ships"],views.GameList.games[params["game"]]["game"].ships[calc.Color.BLUE])
+	self.assertEqual(b["shots"],views.GameList.games[params["game"]]["game"].shots[calc.Color.BLUE])
+	self.assertEqual(b["turn"],False)
 	params={"game":'Game 1',"token":9998}
-	g=views.getBoards(params)
-	self.assertEqual(g["valid"],True)
-	self.assertEqual(g["winner"],None)
-	self.assertEqual(g["ships"],views.GameList.games[params["game"]]["game"].ships[calc.Color.PINK])
-	self.assertEqual(g["shots"],views.GameList.games[params["game"]]["game"].shots[calc.Color.PINK])
-	self.assertEqual(g["turn"],True)
+	b=views.getBoards(params)
+	self.assertEqual(b["valid"],True)
+	self.assertEqual(b["winner"],None)
+	self.assertEqual(b["ships"],views.GameList.games[params["game"]]["game"].ships[calc.Color.PINK])
+	self.assertEqual(b["shots"],views.GameList.games[params["game"]]["game"].shots[calc.Color.PINK])
+	self.assertEqual(b["turn"],True)
 
 
