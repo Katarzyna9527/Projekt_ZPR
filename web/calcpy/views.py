@@ -178,56 +178,60 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 	turn=False
 	time_left="-"
 	player = params["token"]
-	if name in GameList.games.keys():
-		game = GameList.games[name]
-		for p in game["players"]:
-			if game["players"][p] is None:
-				game["game"].last_move_time = dt.datetime.now()
-				return {"valid": False}
-		if player not in [p.token for p in game["players"].values()]:
-			return {"valid": False}
+	L.l.acquire()
+	try:
+		if name in GameList.games.keys():
+			game = GameList.games[name]
+			for p in game["players"]:
+				if game["players"][p] is None:
+					game["game"].last_move_time = dt.datetime.now()
+					raise
+			if player not in [p.token for p in game["players"].values()]:
+				raise
 
-		valid=True
+			valid=True
 
-		(color, oponent_color) = getColors(player == game["players"]["blue"].token)
-		ships = game["game"].ships[color]
-		shots = game["game"].shots[color]
+			(color, oponent_color) = getColors(player == game["players"]["blue"].token)
+			ships = game["game"].ships[color]
+			shots = game["game"].shots[color]
 
-		if game["game"].is_over:
-			winner = (game["game"].winner == color)
-			return {"valid": False}
+			if game["game"].is_over:
+				winner = (game["game"].winner == color)
+				raise
 
-		turning_player = game["game"].game.whichPlayerNow()
+			turning_player = game["game"].game.whichPlayerNow()
 
-		time_left = game["game"].last_move_time - dt.datetime.now() + dt.timedelta(seconds=30)
-		if time_left.seconds < 0 or time_left.seconds > 61:
-			time_left = "0.0"
-			winner = (color != turning_player)
-			game["game"].is_over = True
-			game["game"].winner = turning_player
-		else:
-			if turning_player == color:
-				turn = True
+			time_left = game["game"].last_move_time - dt.datetime.now() + dt.timedelta(seconds=30)
+			if time_left.seconds < 0 or time_left.seconds > 61:
+				time_left = "0.0"
+				winner = (color != turning_player)
+				game["game"].is_over = True
+				game["game"].winner = turning_player
+			else:
+				if turning_player == color:
+					turn = True
 
-			for c in [color, oponent_color]:
-				if game["game"].game.checkVictory(c) == True:
-					game["game"].is_over = True
-					game["game"].winner = c
+				for c in [color, oponent_color]:
+					if game["game"].game.checkVictory(c) == True:
+						game["game"].is_over = True
+						game["game"].winner = c
 
-					winner_color = {Color.BLUE: "blue", Color.PINK: "pink"}[c]
-					loser_color = {"pink": "blue", "blue": "pink"}[winner_color]
-					loser_login = game["players"][loser_color].name
-					winner_login = game["players"][winner_color].name
-					winner = (game["players"][winner_color].token == player)
+						winner_color = {Color.BLUE: "blue", Color.PINK: "pink"}[c]
+						loser_color = {"pink": "blue", "blue": "pink"}[winner_color]
+						loser_login = game["players"][loser_color].name
+						winner_login = game["players"][winner_color].name
+						winner = (game["players"][winner_color].token == player)
 
-					conn=psycopg2.connect(database="mydb",user="mydb",password="mydb",host="127.0.0.1", port="5432")
-					cur=conn.cursor()
-					cur.execute(("UPDATE game_users SET wins = wins + 1 WHERE LOGIN = \'{}\'").format(winner_login))
-					conn.commit()
-					cur.execute(("UPDATE game_users SET loses = loses + 1 WHERE LOGIN = \'{}\'").format(loser_login))
-					conn.commit()
-					conn.close()
-					break
+						conn=psycopg2.connect(database="mydb",user="mydb",password="mydb",host="127.0.0.1", port="5432")
+						cur=conn.cursor()
+						cur.execute(("UPDATE game_users SET wins = wins + 1 WHERE LOGIN = \'{}\'").format(winner_login))
+						conn.commit()
+						cur.execute(("UPDATE game_users SET loses = loses + 1 WHERE LOGIN = \'{}\'").format(loser_login))
+						conn.commit()
+						conn.close()
+						break
+	finally:
+		L.l.release()
 		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid": valid, "time_left": str(time_left).split(".")[0] }
 
 def getGames(params):
