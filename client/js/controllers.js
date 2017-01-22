@@ -16,17 +16,16 @@ angular.module('myAppControllers', [])
 				 '$location',
 				 'srvInfo',
 				 function($scope, $location, srvInfo) {
+					 var callback = function (data) { if (data.data["session-token"]) { token = data.data["session-token"]; $location.path('/list').search('token',token); } else { $scope.login_failed = true; }};
+					 var fallback = function () { console.log("Login failed"); };
+
 					 $scope.login_failed = false;
-					 $scope.register_failed = false;
 					 var token = -1;
+
 					 $scope.on_submit_login = function() {
-					 	 var callback = function (data) { if (data.data["session-token"]) { token = data.data["session-token"]; $location.path('/list').search('token',token); } else { $scope.login_failed = true; }};
-						 var fallback = function () { console.log("Login failed"); };
 						 srvInfo.doLoginUser(callback, fallback, $scope.account_name, $scope.account_password);
 					 };
 					 $scope.on_submit_register = function() {
-					 	 var callback = function (data) { if (data.data["session-token"]) { token = data.data["session-token"]; $location.path('/list').search('token',token); } else { $scope.login_failed = true; }};
-						 var fallback = function () { $scope.register_failed = true; };
 						 srvInfo.doRegisterUser(callback, fallback, $scope.account_name, $scope.account_password);
 					 };
 
@@ -66,6 +65,13 @@ angular.module('myAppControllers', [])
 								$scope.shiplist = data.data["ships"]; 
 								$scope.shotlist = data.data["shots"];
 								$scope.turn = data.data["turn"];
+								$scope.won = data.data["winner"];
+								if (data.data["winner"] === true || data.data["winner"] === false) {
+									srvInfo.doGetPlayerInfo(function(data) { $scope.winrate = data.data["win_ratio"]; }, function(){}, token);
+  							 		$timeout.cancel(timeout_promise);
+									return;
+								}
+
 								if ($scope.turn) $scope.REFRESH_INTERVAL = 5000;
 								else $scope.REFRESH_INTERVAL = 1000;
 								}, function() {}, token, game);
@@ -73,6 +79,9 @@ angular.module('myAppControllers', [])
 								$timeout(refresh, $scope.REFRESH_INTERVAL); //start calling the service
 						 };
 						 
+						 $scope.$on('$destroy', function(){
+  							 $timeout.cancel(timeout_promise);
+						 });
 						 $scope.$on('$locationChangeStart', function(){
   							 $timeout.cancel(timeout_promise);
 						 });
@@ -104,6 +113,9 @@ angular.module('myAppControllers', [])
 						 };
 
 						 $scope.$on('$locationChangeStart', function(){
+  							 $timeout.cancel(timeout_promise);
+						 });
+						 $scope.$on('$destroy', function(){
   							 $timeout.cancel(timeout_promise);
 						 });
 							
