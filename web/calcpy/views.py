@@ -120,7 +120,7 @@ def userMove(params):
 				raise
 			(color, oponent_color) = getColors(player == game["players"]["blue"])
 			if game["game"].game.whichPlayerNow() == color:
-				m = Move(y, x, color)
+				m = Move(x, y, color)
 				if game["game"].game.checkMove(m):
 					game["game"].game.executeMove(m)
 					valid = True
