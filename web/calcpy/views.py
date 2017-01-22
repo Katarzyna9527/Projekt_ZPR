@@ -6,6 +6,7 @@ import psycopg2
 import version.models
 import threading
 import datetime as dt
+import hashlib
 
 class GameList:
 	cid = 1
@@ -90,8 +91,13 @@ def loginUser(params):
 		cur.execute("SELECT ID,LOGIN,PASSWORD_HASH FROM GAME_USERS")
 		rows=cur.fetchall()
 		for row in rows:
-			if row[1]==params["name"] and row[2]==params["pass"]:
-				token = row[0]
+			m = hashlib.md5()
+			m.update(str(params["pass"]))
+			in_password = m.hexdigest()
+			if row[1]==params["name"] and row[2]==in_password:
+				m = hashlib.md5()
+				m.update(str(params["pass"])+str(params["name"])+"arydn2")
+				token = m.hexdigest()
 				putPlayer(params["name"], token)
 	finally:
 		conn.close()
@@ -184,8 +190,8 @@ def getGame(params):
 
 def registerUser(params):
 	print "Got name ",params["name"]," password ",params["pass"]
+	valid = True
 	L.l.acquire()
-	token = None
 	try:
 		conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
 		cur=conn.cursor()
@@ -203,21 +209,24 @@ def registerUser(params):
 		rows=cur.fetchall()
 		newId=1
 		for row in rows:
-			if row[1]==params["name"]:
-				token=1
-			if row[0]>=newId:
+			if row[1]==params["name"]: # User is already in the database
+				valid = False
+				raise
+			elif row[0]>=newId:
 				newId=row[0]+1
-		if token==None:
-			cur.execute(("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) VALUES ({},\'{}\',\'{}\',0,0)").format(newId,params["name"],params["pass"]))
+		if valid:
+			m = hashlib.md5()
+			m.update(str(params["pass"]))
+			in_password = m.hexdigest()
+			cur.execute(("INSERT INTO GAME_USERS (ID,LOGIN,PASSWORD_HASH,WINS,LOSES) VALUES ({},\'{}\',\'{}\',0,0)").format(newId,params["name"],in_password))
 			conn.commit()
-			token = newId			
-			putPlayer(params["name"], token)
-		else:
-			token = None
 	finally:
 		conn.close()
 		L.l.release()
-		return { "session-token": token}
+		if valid:
+			return loginUser(params)
+		else:
+			return { "session-token": None}
 
 def getPlayerInfo(params):
 	ratio=0
