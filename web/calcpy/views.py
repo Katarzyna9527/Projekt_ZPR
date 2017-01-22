@@ -112,21 +112,24 @@ def userMove(params):
 			game=GameList.games[name]
 			player=params["token"]
 			if player == game["blue"]:
-				print "blue"
-				if game["game"].game.whichPlayerNow()==Color.BLUE and game["game"].shotsB[x][y]==None:
+				if game["game"].game.whichPlayerNow()==Color.BLUE: 
 					print "31"
-					m=Move(x,y,Color.BLUE)
-					if game["game"].game.checkMove(m)==True:
-						valid=1
-						game["game"].game.executeMove(m)
-						print "exec"
-						if game["game"].shipsP[x][y]=="up":
-							hit=1
-							game["game"].shotsB[x][y]=="hit"
-							game["game"].shipsP[x][y]=="down"
-						else:
-							hit=0
-							game["game"].shotsB[x][y]=="miss"
+					if game["game"].shotsB[x][y]!="miss" and game["game"].shotsB[x][y]!="hit":
+						print "32"
+						m=Move(y,x,Color.BLUE)
+						print "33"
+						if game["game"].game.checkMove(m)==True:
+							print "34"
+							game["game"].game.executeMove(m)
+							print "exec"
+							valid=1
+							if game["game"].shipsP[x][y]=="up":
+								hit=1
+								game["game"].shotsB[x][y]="hit"
+								game["game"].shipsP[x][y]="down"
+							else:
+								hit=0
+								game["game"].shotsB[x][y]="miss"
 				#break
 			elif player==game['pink']:
 				print "pink"
@@ -143,11 +146,11 @@ def userMove(params):
 							valid=1
 							if game["game"].shipsB[x][y]=="up":
 								hit=1
-								game["game"].shotsP[x][y]=="hit"
-								game["game"].shipsB[x][y]=="down"
+								game["game"].shotsP[x][y]="hit"
+								game["game"].shipsB[x][y]="down"
 							else:
 								hit=0
-								game["game"].shotsP[x][y]=="miss"
+								game["game"].shotsP[x][y]="miss"
 				#break
 	finally:
 		print "4"
