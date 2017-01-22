@@ -34,6 +34,7 @@ class GameStub:
 		self.shots = {}
 		self.last_move_time = dt.datetime.now()
 		self.is_over = False
+		self.winner = None
 		for color in [Color.BLUE, Color.PINK]:
 			self.ships[color]=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
 			self.shots[color]=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
@@ -190,6 +191,10 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 			valid=True
 
 			(color, oponent_color) = getColors(player == game["players"]["blue"].token)
+
+			if game["game"].is_over:
+				winner = (game["game"].winner == color)
+
 			turning_player = game["game"].game.whichPlayerNow()
 
 			time_left = game["game"].last_move_time - dt.datetime.now() + dt.timedelta(seconds=30)
@@ -199,12 +204,12 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 			else:
 				if turning_player == color:
 					turn = True
-				if game["game"].game.checkVictory(color) == True:
-					winner=True
-					game["game"].is_over = True
-				elif game["game"].game.checkVictory(oponent_color) == True:
-					winner=False
-					game["game"].is_over = True
+				for c in [color, oponent_color]:
+					if game["game"].game.checkVictory(c) == True:
+						game["game"].is_over = True
+						game["game"].winner = c
+						winner = c == turning_player
+						break
 
 				ships = game["game"].ships[color]
 				shots = game["game"].shots[color]
@@ -213,7 +218,7 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid": valid, "time_left": str(time_left).split(".")[0] }
 
 def getGames(params):
-	games = [(game, GameList.games[game]["players"]["blue"].name) for game in GameList.games if GameList.games[game]["players"]["pink"] is None]
+	games = [(game, GameList.games[game]["players"]["blue"].name) for game in GameList.games if (GameList.games[game]["players"]["pink"] is None and not GameList.games[game]["game"].is_over)]
 	return { "games": games }
 
 def getGame(params):
@@ -267,6 +272,26 @@ def getPlayerInfo(params):
 def onPlayerLeave(params):
 	token = params['token']
 	game = params['game']
-	print "Player ",token," has left the game ",game,"."
-	# if one player left - the other one wins if the game wasnt over,
-	# if both players leaft - destroy the game
+	L.l.acquire()
+	try:
+		print "Player ",token," has left the game ",game,"."
+		if game not in GameList.games.keys():
+			raise
+		if (GameList.games[game]["game"].is_over):
+			for color in GameList.games[game]["players"]:
+				if GameList.games[game]["players"][color].token == token:
+					GameList.games[game]["players"][color] = None
+					break
+		else:
+			for color in GameList.games[game]["players"]:
+				for color in ["blue", "pink"]:
+					if GameList.games[game]["players"][color] == None:
+						del GameList.games[game]
+
+				(color, oponent_color) = getColors(GameList.games[game]["players"]["blue"].token == token)
+				GameList.game[game]["game"].is_over = True
+				GameList.game[game]["game"].winner = oponent_color
+				GameList.game[game]["players"][{Color.BLUE: 'blue', Color.PINK: 'pink'}[color]] = None
+	finally:
+		L.l.release()
+		return {}

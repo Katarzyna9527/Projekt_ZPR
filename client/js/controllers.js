@@ -2,15 +2,6 @@
 /// @brief AngularJS controllers
 
 angular.module('myAppControllers', [])
-	.controller('settingsController', //client static settings
-				['$scope',
-				 '$translate',
-				 function($scope, $translate) {
-					 $scope.langs = ['en', 'pl'];
-					 $scope.changeLanguage = function (lang) {
-						 $translate.use(lang);
-					 };
-				 }])
 	.controller('loginController',
 				['$scope',
 				 '$location',
