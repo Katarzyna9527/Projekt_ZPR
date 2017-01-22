@@ -55,7 +55,7 @@ angular.module('myAppControllers', [])
 
 								 $scope.turn = false;
 								 $scope.REFRESH_INTERVAL = 1000;
-								 }, function() {}, xpos, ypos, token );
+								 }, function() {}, xpos, ypos, token, game);
 						 };
 
 						 $scope.REFRESH_INTERVAL = 3000;

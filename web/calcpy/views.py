@@ -94,7 +94,7 @@ def loginUser(params):
 		return { "session-token": token }
 
 def userMove(params):
-	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],")"
+	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],") for game ",params["game"]
 	L.l.acquire()
 	valid=0
 	hit=0

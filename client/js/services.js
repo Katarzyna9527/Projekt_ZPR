@@ -11,8 +11,8 @@ angular.module('myAppServices', [])
 				 this.doRegisterUser = function(callback, fallback, name, pass) {
 					 return $http.get(this.baseURL + 'calcpy/registerUser', { params: { 'name': name, 'pass': pass } }).then(callback, fallback);
 				 };
-				 this.doUserMove = function(callback, fallback, x, y, token) {
-					 return $http.get(this.baseURL + 'calcpy/userMove', { params: { 'x': x, 'y': y, 'token': token} }).then(callback, fallback);
+				 this.doUserMove = function(callback, fallback, x, y, token, game) {
+					 return $http.get(this.baseURL + 'calcpy/userMove', { params: { 'x': x, 'y': y, 'token': token, 'game': game } }).then(callback, fallback);
 				 };
 				 this.doGetBoards = function(callback, fallback, token, game) {
 					 return $http.get(this.baseURL + 'calcpy/getBoards', { params: { 'token': token, 'game': game } }).then(callback, fallback);
