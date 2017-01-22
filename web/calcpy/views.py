@@ -26,26 +26,31 @@ def getPlayer(name):
 			retVal=PlayerList.players[name]
 	return retVal
 
+def getColors(p_isblue):
+	cdict = {True: Color.BLUE, False: Color.PINK}
+	return cdict[p_isblue], cdict[p_isblue == False]
+
 class GameStub:
 	BOARDSIZE = 10
 	def __init__(self):
-		#self.ships = [[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
-		#self.shots = [[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]		
 		self.game=Game()
-		self.shipsB=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
-		self.shipsP=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
-		self.shotsB=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
-		self.shotsP=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
+		self.ships = {}
+		self.shots = {}
+		for color in [Color.BLUE, Color.PINK]:
+			self.ships[color]=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
+			self.shots[color]=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
+
 		m=Matrix()
 		v=Vector()
 		v[:]=[True,True,True,True,True,True,True,True,True,True]
 		m[:]=[v,v,v,v,v,v,v,v,v,v]
+
 		out="BLUE\n"
 		m=self.game.getBoardOfShipsSettings(Color.BLUE)
 		for i in range(0,GameStub.BOARDSIZE):
 			for j in range(0,GameStub.BOARDSIZE):
 				if m[i][j]==1:
-					self.shipsB[i][j]="up"
+					self.ships[Color.BLUE][i][j]="up"
 					out+="1"
 				else:
 					out+="0"
@@ -55,7 +60,7 @@ class GameStub:
 		for i in range(0,GameStub.BOARDSIZE):
 			for j in range(0,GameStub.BOARDSIZE):
 				if m[i][j]==1:
-					self.shipsP[i][j]="up"
+					self.ships[Color.PINK][i][j]="up"
 					out+="1"
 				else:
 					out+="0"
@@ -95,61 +100,32 @@ def loginUser(params):
 
 def userMove(params):
 	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],") for game ",params["game"]
-	L.l.acquire()
-	valid=0
-	hit=0
-	print "1"
+	valid=False
+	hit=False
 	x=int(params["x"])
 	y=int(params["y"])
+	name = params["game"]
+	L.l.acquire()
 	try:
-		print "2"
-		for name in GameList.games.keys():
-			print "3"
-			game=GameList.games[name]
+		if name in GameList.games.keys():
+			game = GameList.games[name]
 			player=params["token"]
-			if player == game["blue"]:
-				if game["game"].game.whichPlayerNow()==Color.BLUE: 
-					print "31"
-					if game["game"].shotsB[x][y]!="miss" and game["game"].shotsB[x][y]!="hit":
-						print "32"
-						m=Move(y,x,Color.BLUE)
-						print "33"
-						if game["game"].game.checkMove(m)==True:
-							print "34"
-							game["game"].game.executeMove(m)
-							print "exec"
-							valid=1
-							if game["game"].shipsP[x][y]=="up":
-								hit=1
-								game["game"].shotsB[x][y]="hit"
-								game["game"].shipsP[x][y]="down"
-							else:
-								hit=0
-								game["game"].shotsB[x][y]="miss"
-				#break
-			elif player==game['pink']:
-				print "pink"
-				if game["game"].game.whichPlayerNow()==Color.PINK: 
-					print "31"
-					if game["game"].shotsP[x][y]!="miss" and game["game"].shotsP[x][y]!="hit":
-						print "32"
-						m=Move(y,x,Color.PINK)
-						print "33"
-						if game["game"].game.checkMove(m)==True:
-							print "34"
-							game["game"].game.executeMove(m)
-							print "exec"
-							valid=1
-							if game["game"].shipsB[x][y]=="up":
-								hit=1
-								game["game"].shotsP[x][y]="hit"
-								game["game"].shipsB[x][y]="down"
-							else:
-								hit=0
-								game["game"].shotsP[x][y]="miss"
-				#break
+			if player not in game["players"].values():
+				raise
+			(color, oponent_color) = getColors(player == game["players"]["blue"])
+			if game["game"].game.whichPlayerNow() == color:
+				m = Move(y, x, color)
+				if game["game"].game.checkMove(m):
+					game["game"].game.executeMove(m)
+					valid = True
+					if game["game"].ships[oponent_color][x][y] == "up":
+						hit = True
+						game["game"].shots[color][x][y]="hit"
+						game["game"].ships[oponent_color][x][y]="down"
+					else:
+						game["game"].shots[color][x][y] = "miss"
+						
 	finally:
-		print "4"
 		L.l.release()
 		return { "valid": valid, "hit": hit }
 
@@ -157,34 +133,26 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 	name = params["game"]
 	valid=False
 	winner=None
-	ships=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
-	shots=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
+	ships=None
+	shots=None
 	turn=False
 	player = params["token"]
 	L.l.acquire()
 	try:
 		if name in GameList.games.keys():
 			game = GameList.games[name]
-			if player == game['blue'] :
-				ships=game["game"].shipsB
-				shots=game["game"].shotsB
-				if game["game"].game.checkVictory(Color.BLUE)==True:
-					winner=True
-				elif game["game"].game.checkVictory(Color.PINK) == True:
-					winner=False
-				if game["game"].game.whichPlayerNow()==Color.BLUE:
-					turn=True
-				valid=True
-			elif player == game['pink']:
-				ships=game["game"].shipsP
-				shots=game["game"].shotsP
-				if game["game"].game.checkVictory(Color.PINK)==True:
-					winner=True
-				elif game["game"].game.checkVictory(Color.BLUE) == True:
-					winner=False
-				if game["game"].game.whichPlayerNow()==Color.PINK:
-					turn=True
-				valid=True
+			if player not in game["players"].values():
+				raise
+			(color, oponent_color) = getColors(player == game["players"]["blue"])
+			ships = game["game"].ships[color]
+			shots = game["game"].shots[color]
+			if game["game"].game.checkVictory(color) == True:
+				winner=True
+			elif game["game"].game.checkVictory(oponent_color) == True:
+				winner=False
+			if game["game"].game.whichPlayerNow()==color:
+				turn=True
+			valid=True
 	finally:
 		L.l.release()
 		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid":valid }
@@ -201,16 +169,15 @@ def getGame(params):
 			name = 'Game '+str(GameList.cid)
 			GameList.cid += 1
 			print(name)
-			GameList.games[name] = {'blue': params['token'], 'pink': None, 'game': GameStub()}
+			GameList.games[name] = { "players": { 'blue': params['token'], 'pink': None }, 'game': GameStub() }
 			valid=True
 		elif name in GameList.games.keys():
 			game = GameList.games[name]
-			if (game["blue"] is None) or (game["blue"] == params['token']):
-				game["blue"] = params['token']
-				valid=True
-			elif (game["pink"] is None) or (game["pink"] == params['token']):
-				game["pink"] = params['token']
-				valid=True
+			for color in ["blue", "pink"]:
+				if (game["players"][color] is None) or (game["players"][color] == params['token']):
+					game["players"][color] = params['token']
+					valid=True
+					break
 	finally:
 		L.l.release()
 		return { "game": name, "valid": valid }
