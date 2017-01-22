@@ -1,8 +1,11 @@
+/*!
+ *  @file   Game.cpp
+ *  @brief File contains implemented methods of a Game class.
+ */
 #include "Game.hpp"
 
 Game::Game(){			
 
-	//randGen.seed(static_cast<unsigned int>(std::time(0)));
 	playerBlue_ = std::make_shared<Player>(BLUE, false);
 	playerPink_ = std::make_shared<Player>(PINK, true);
 	statePlayerBlue_ = std::make_shared<State>(playerBlue_);
