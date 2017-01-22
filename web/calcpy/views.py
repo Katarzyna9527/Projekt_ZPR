@@ -18,17 +18,13 @@ def putPlayer(name, token):
 	PlayerList.players[name] = {"token": token, "expiry": dt.datetime.now() + dt.timedelta(hours=2)}
 
 def getPlayer(name):
-	L.l.acquire()
 	retVal=None
-	try:
-		if name in PlayerList.players.keys():
-			player = PlayerList.players[name]
-			if PlayerList.players[name]["expiry"] <= dt.datetime.now():
-				PlayerList.players[name]["expiry"] = dt.datetime.now() + dt.timedelta(hours=2)
-				retVal=PlayerList.players[name]
-	finally:
-		L.l.release()
-		return retVal
+	if name in PlayerList.players.keys():
+		player = PlayerList.players[name]
+		if PlayerList.players[name]["expiry"] <= dt.datetime.now():
+			PlayerList.players[name]["expiry"] = dt.datetime.now() + dt.timedelta(hours=2)
+			retVal=PlayerList.players[name]
+	return retVal
 
 class GameStub:
 	BOARDSIZE = 10
@@ -174,7 +170,7 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 				shots=game["game"].shotsB
 				if game["game"].game.checkVictory(Color.BLUE)==True:
 					winner=True
-				else:
+				elif game["game"].game.checkVictory(Color.PINK) == True:
 					winner=False
 				if game["game"].game.whichPlayerNow()==Color.BLUE:
 					turn=True
@@ -184,7 +180,8 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 				shots=game["game"].shotsP
 				if game["game"].game.checkVictory(Color.PINK)==True:
 					winner=True
-				else:
+				elif game["game"].game.checkVictory(Color.BLUE) == True:
+					winner=False
 					winner=False
 				if game["game"].game.whichPlayerNow()==Color.PINK:
 					turn=True
