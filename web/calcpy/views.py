@@ -182,7 +182,6 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 					winner=True
 				elif game["game"].game.checkVictory(Color.BLUE) == True:
 					winner=False
-					winner=False
 				if game["game"].game.whichPlayerNow()==Color.PINK:
 					turn=True
 				valid=True
@@ -254,4 +253,27 @@ def registerUser(params):
 		return { "session-token": token}
 
 def getPlayerInfo(params):
-	return { "win_ratio": 0.5 }
+	ratio=0
+	L.l.acquire()
+	try:
+		conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
+		cur=conn.cursor()
+		cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
+		rows=cur.fetchall()
+		if len(rows)==0:
+			cur.execute('''CREATE TABLE GAME_USERS
+	       		(ID INT PRIMARY KEY    NOT NULL,
+	       		LOGIN          TEXT    NOT NULL,
+	       		PASSWORD_HASH  TEXT    NOT NULL,
+			WINS           INT     NOT NULL,
+			LOSES          INT     NOT NULL);''')
+			conn.commit()
+		cur.execute("SELECT ID,WINS,LOSES FROM GAME_USERS")
+		rows=cur.fetchall()
+		for row in rows:
+			#if row[0]==params["name"]
+				ratio=(int(row[1]))/(int(row[2]))
+	finally:
+		conn.close()
+		L.l.release()
+		return { "win_ratio": ratio }

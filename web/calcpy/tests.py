@@ -8,7 +8,7 @@ import time
 
 class CalcPyLibraryTestCase(django.test.TestCase):
     """integration test, call C++ library interface from Python"""
-
+'''
     def test01getNumber(self):
         """test the return number"""
         self.assertEqual( calc.getNumber(), 1234 )
@@ -24,11 +24,21 @@ class CalcPyLibraryTestCase(django.test.TestCase):
                 break
         self.assertEqual( cmdmgr.getState(cmd_id), calc.DONE )
         self.assertEqual( len(cmdmgr.getIds()), 1 )
+'''
+    def test01enums(self):
+        pink=calc.Color(1)
+	blue=calc.Color(2)
+	right=calc.Direction(1)
+	down=calc.Direction(2)
+	self.assertEqual(pink,calc.Color.PINK)
+	self.assertEqual(blue,calc.Color.BLUE)
+	self.assertEqual(right,calc.Direction.RIGHT)
+	self.assertEqual(down,calc.Direction.DOWN)
 
 
 class CalcPyViewTestCase(django.test.TestCase):
     """module view test"""
-
+'''
     def test01getNumber(self):
         """check if service return proper dict"""
         self.assertEqual( views.getNumber({}), {'number': 1234})
@@ -41,7 +51,7 @@ class CalcPyViewTestCase(django.test.TestCase):
         views.startCommand({});
         dict2 = views.getCommands({})
         self.assertEqual( len(dict1) + 1, len(dict2) )
-
+'''
 
 
 
