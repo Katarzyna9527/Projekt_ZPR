@@ -8,6 +8,11 @@ import threading
 import datetime as dt
 import hashlib
 
+class Player:	
+	def __init__(self, name, token):
+		self.name = name
+		self.token = token
+
 class GameList:
 	cid = 1
 	games = {}
@@ -144,9 +149,9 @@ def userMove(params):
 		if name in GameList.games.keys():
 			game = GameList.games[name]
 			player=params["token"]
-			if player not in game["players"].values():
+			if player not in [p.token for p in game["players"].values()]:
 				raise
-			(color, oponent_color) = getColors(player == game["players"]["blue"])
+			(color, oponent_color) = getColors(player == game["players"]["blue"].token)
 			if game["game"].game.whichPlayerNow() == color:
 				m = Move(x, y, color)
 				if game["game"].game.checkMove(m):
@@ -176,7 +181,7 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 	try:
 		if name in GameList.games.keys():
 			game = GameList.games[name]
-			if player not in game["players"].values():
+			if player not in [p.token for p in game["players"].values()]:
 				raise
 			for p in game["players"]:
 				if game["players"][p] is None:
@@ -184,7 +189,7 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 					raise
 			valid=True
 
-			(color, oponent_color) = getColors(player == game["players"]["blue"])
+			(color, oponent_color) = getColors(player == game["players"]["blue"].token)
 			turning_player = game["game"].game.whichPlayerNow()
 
 			time_left = game["game"].last_move_time - dt.datetime.now() + dt.timedelta(seconds=30)
@@ -208,7 +213,8 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid": valid, "time_left": str(time_left).split(".")[0] }
 
 def getGames(params):
-	return { "games": GameList.games.keys() }
+	games = [(game, GameList.games[game]["players"]["blue"].name) for game in GameList.games if GameList.games[game]["players"]["pink"] is None]
+	return { "games": games }
 
 def getGame(params):
 	name = params['game']
@@ -218,16 +224,16 @@ def getGame(params):
 		if name == 'New Game':
 			name = 'Game '+str(GameList.cid)
 			GameList.cid += 1
-			GameList.games[name] = { "players": { 'blue': params['token'], 'pink': None }, 'game': GameStub() }
+			GameList.games[name] = { "players": { 'blue': Player(params['login'], params['token']), 'pink': None }, 'game': GameStub() }
 			valid=True
 		elif name in GameList.games.keys():
 			game = GameList.games[name]
-			for color in ["blue", "pink"]:
-				if (game["players"][color] is None) or (game["players"][color] == params['token']):
-					game["players"][color] = params['token']
-					valid=True
-					games["game"].last_move_time = dt.datetime.now()
-					break
+			if game["players"]["blue"].token == params["token"]:
+				valid=True
+			elif game["players"]["pink"] is None:
+				game["players"]["pink"] = Player(params["login"], params["token"])
+				valid=True
+				games["game"].last_move_time = dt.datetime.now()
 	finally:
 		L.l.release()
 		return { "game": name, "valid": valid }

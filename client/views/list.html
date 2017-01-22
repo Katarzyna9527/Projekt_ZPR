@@ -11,7 +11,7 @@
 <table class="gamelist">
 	<tr ng-repeat="game in gamelist">
 		<td style="vertical-align: center;">
-			<div class="gamelist_element" ng-click="gameClicked(game);">{{game}}
+			<div class="gamelist_element" ng-click="gameClicked(game[0]);">{{game[0]+" "+game[1]}}
 			</div>
 		</td>
 	</tr>
