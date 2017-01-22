@@ -49,7 +49,7 @@ class GameStub:
 		for i in range(0,GameStub.BOARDSIZE):
 			for j in range(0,GameStub.BOARDSIZE):
 				if m[i][j]==1:
-					self.shipsB[j][i]="up"
+					self.shipsB[i][j]="up"
 					out+="1"
 				else:
 					out+="0"
@@ -59,7 +59,7 @@ class GameStub:
 		for i in range(0,GameStub.BOARDSIZE):
 			for j in range(0,GameStub.BOARDSIZE):
 				if m[i][j]==1:
-					self.shipsP[j][i]="up"
+					self.shipsP[i][j]="up"
 					out+="1"
 				else:
 					out+="0"
@@ -103,8 +103,8 @@ def userMove(params):
 	valid=0
 	hit=0
 	print "1"
-	x=params["x"]
-	y=params["y"]
+	x=int(params["x"])
+	y=int(params["y"])
 	try:
 		print "2"
 		for name in GameList.games.keys():
@@ -114,10 +114,12 @@ def userMove(params):
 			if player == game["blue"]:
 				print "blue"
 				if game["game"].game.whichPlayerNow()==Color.BLUE and game["game"].shotsB[x][y]==None:
-					m=Move(params["y"],params["x"],Color.BLUE)
+					print "31"
+					m=Move(x,y,Color.BLUE)
 					if game["game"].game.checkMove(m)==True:
 						valid=1
 						game["game"].game.executeMove(m)
+						print "exec"
 						if game["game"].shipsP[x][y]=="up":
 							hit=1
 							game["game"].shotsB[x][y]=="hit"
@@ -125,22 +127,28 @@ def userMove(params):
 						else:
 							hit=0
 							game["game"].shotsB[x][y]=="miss"
-				break
+				#break
 			elif player==game['pink']:
 				print "pink"
-				if game["game"].game.whichPlayerNow()==Color.PINK and game["game"].shotsP[x][y]==None:
-					m=Move(params["y"],params["x"],Color.PINK)
-					if game["game"].game.checkMove(m)==True:
-						valid=1
-						game["game"].game.executeMove(m)
-						if game["game"].shipsB[x][y]=="up":
-							hit=1
-							game["game"].shotsP[x][y]=="hit"
-							game["game"].shipsB[x][y]=="down"
-						else:
-							hit=0
-							game["game"].shotsP[x][y]=="miss"
-				break
+				if game["game"].game.whichPlayerNow()==Color.PINK: 
+					print "31"
+					if game["game"].shotsP[x][y]!="miss" and game["game"].shotsP[x][y]!="hit":
+						print "32"
+						m=Move(y,x,Color.PINK)
+						print "33"
+						if game["game"].game.checkMove(m)==True:
+							print "34"
+							game["game"].game.executeMove(m)
+							print "exec"
+							valid=1
+							if game["game"].shipsB[x][y]=="up":
+								hit=1
+								game["game"].shotsP[x][y]=="hit"
+								game["game"].shipsB[x][y]=="down"
+							else:
+								hit=0
+								game["game"].shotsP[x][y]=="miss"
+				#break
 	finally:
 		print "4"
 		L.l.release()

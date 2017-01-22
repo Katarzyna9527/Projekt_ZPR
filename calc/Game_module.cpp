@@ -28,7 +28,7 @@ BOOST_PYTHON_MODULE(calc){
 		;
 
 
-	boost::python::class_<Move>("Move",boost::python::init<int,int,Color>())
+	boost::python::class_<Move,std::shared_ptr<Move>>("Move",boost::python::init<int,int,Color>())
 		;
 
 	
