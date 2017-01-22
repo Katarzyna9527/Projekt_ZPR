@@ -1,51 +1,52 @@
 #include "State.hpp"
 
-State::State(Player* player){
-randGen.seed(std::time(0));
-	stateOfShips = new bool*[BOARD_SIZE];
-	stateOfMoves = new bool*[BOARD_SIZE];
-	for(int i=0; i<BOARD_SIZE; i++){
-	stateOfShips[i] = new bool[BOARD_SIZE];
-	stateOfMoves[i] = new bool[BOARD_SIZE];
-		for(int j=0; j<BOARD_SIZE; j++){
-		stateOfShips[i][j] = 0;
-		stateOfMoves[i][j] = 0;
-		}
+State::State(std::shared_ptr<Player> player){
+
+	for (int i = 0; i < BOARD_SIZE; ++i)
+	{
+		stateOfMoves.push_back( std::vector<bool>() );
+		stateOfShips.push_back( std::vector<bool>() );
+		for (int j = 0; j < BOARD_SIZE; ++j){
+		stateOfMoves[i].push_back(0);
+		stateOfShips[i].push_back(0);}
 	}
 	
 initializeState(player);
 
+	for(int i=0; i<BOARD_SIZE;++i)
+		{for(int j=0; j<BOARD_SIZE;++j)
+			{
+				std::cout<<stateOfShips[j][i]<<" ";	
+			}
+std::cout<<std::endl;		
+}
+std::cout<<std::endl;
+std::cout<<std::endl;
+std::cout<<std::endl;
 }
 
-void State::initializeState(Player* player){
+void State::initializeState(std::shared_ptr<Player> player){
 
+	Board boardOfForbiddenSettings;
 	Location loc;
-	bool **tabOfForbiddenSettings = new bool*[BOARD_SIZE];
-	for(int i=0; i<BOARD_SIZE; i++){
-	tabOfForbiddenSettings[i] = new bool[BOARD_SIZE];
-		for(int j=0; j<BOARD_SIZE; j++){
-		tabOfForbiddenSettings[i][j] = 0;
-		}
+
+	for (int i = 0; i < BOARD_SIZE; ++i)
+	{
+		boardOfForbiddenSettings.push_back( std::vector<bool>() );
+		for (int j = 0; j < BOARD_SIZE; ++j)
+			boardOfForbiddenSettings[i].push_back(0);
 	}
-		
-		for (std::vector<Ship*>::iterator i = player->vectorOfShips.begin() ; i != player->vectorOfShips.end(); ++i){
-		loc = findLocation((*i)->getLength(),tabOfForbiddenSettings);
-		setShip(*i,tabOfForbiddenSettings,loc, (*i)->getLength());
-		}
+
+
+	for (auto i = player->begin() ; i != player->end(); ++i){	
+		loc = findLocation((*i)->getLength(),boardOfForbiddenSettings);
+		setShip(*i,boardOfForbiddenSettings,loc, (*i)->getLength());
+	}
 	
-/*	for(int a= 0; a<BOARD_SIZE; a++){
-		for(int b=0;b<BOARD_SIZE;b++){	
-		std::cout<<tabOfForbiddenSettings[b][a]<<" ";
-		}
-	std::cout<<std::endl;
-	}
-std::cout<<std::endl;
-std::cout<<std::endl;
-std::cout<<std::endl;
-*/
 }
 
-Direction State::randomDirection() {
+
+Direction State::randomDirection(){
 	Direction dir;
 	boost::random::uniform_int_distribution<> dist(0,1);
 	int direction = dist(randGen);
@@ -53,6 +54,7 @@ Direction State::randomDirection() {
 	else dir =  DOWN;
 	return dir;
 }
+
 
 Position State::randomPosition(const int& length, const Direction& dir){
 	Position pos;
@@ -74,7 +76,7 @@ Position State::randomPosition(const int& length, const Direction& dir){
 	return pos;
 }
 
-Location State::findLocation(const int& length,bool** tab){
+Location State::findLocation(const int& length,const Board& board){
 	bool badNumber = true;
 	bool fieldFree = true;
 	Direction dir;
@@ -88,9 +90,8 @@ Location State::findLocation(const int& length,bool** tab){
 		pos = randomPosition(length,dir);
 		x = pos.x;
 		y = pos.y;
-		std::cout<<"lol"<<std::endl;
 		while(fieldFree){
-			if(tab[x][y] == 1) {fieldFree = false;}
+			if(board[x][y] == 1) {fieldFree = false;}
 			else
 			{
 				if(dir == RIGHT)x++;
@@ -112,7 +113,7 @@ Location State::findLocation(const int& length,bool** tab){
 	return location;
 }
 
-void State::setShip(Ship* ship, bool** tabOfForbiddenPos, const Location& loc, const int& length){
+void State::setShip(std::shared_ptr<Ship> ship, Board& tabOfForbiddenPos, const Location& loc, const int& length){
 	
 	ship->setLocation(loc.x, loc.y, loc.direction);
 	
@@ -122,16 +123,12 @@ void State::setShip(Ship* ship, bool** tabOfForbiddenPos, const Location& loc, c
 			tabOfForbiddenPos[loc.x+i][loc.y] = 1;	
 			if(loc.y > 0) tabOfForbiddenPos[loc.x+i][loc.y-1] = 1;
 			if(loc.y < BOARD_SIZE-1) tabOfForbiddenPos[loc.x+i][loc.y+1] = 1;
-			//if(i == 0 && loc.x > 0) tabOfForbiddenPos[loc.x-1][loc.y] = 1;
-			//if(i == length-1 && loc.x+i < BOARD_SIZE-1) tabOfForbiddenPos[loc.x+length][loc.y] = 1;
 		}
 		else{
 			stateOfShips[loc.x][loc.y+i] = 1;
 			tabOfForbiddenPos[loc.x][loc.y+i] = 1;	
 			if(loc.x > 0)tabOfForbiddenPos[loc.x-1][loc.y+i] = 1;
-			if(loc.x < BOARD_SIZE-1)tabOfForbiddenPos[loc.x+1][loc.y+i] = 1;
-			//if(i == 0 && loc.y > 0) tabOfForbiddenPos[loc.x][loc.y-1] = 1;
-			//if(i == length-1 && loc.y+i < BOARD_SIZE-1) tabOfForbiddenPos[loc.x][loc.y+length] = 1;	
+			if(loc.x < BOARD_SIZE-1)tabOfForbiddenPos[loc.x+1][loc.y+i] = 1;	
 		}	
 	}
 	
@@ -160,14 +157,11 @@ void State::setShip(Ship* ship, bool** tabOfForbiddenPos, const Location& loc, c
 			if(loc.x < BOARD_SIZE-1)tabOfForbiddenPos[loc.x+1][loc.y+length] = 1;
 		}	
 	}	
-	/*
-	if(loc.x > 0 && loc.y > 0) tabOfForbiddenPos[loc.x-1][loc.y-1] = 1;
-	if(loc.x < BOARD_SIZE && loc.y > 0) tabOfForbiddenPos[loc.x+length-1][loc.y-1] = 1;
-	if(loc.x > 0 && loc.y < BOARD_SIZE) tabOfForbiddenPos[loc.x-1][loc.y+1] = 1;
-	if(loc.x < BOARD_SIZE && loc.y < BOARD_SIZE) tabOfForbiddenPos[loc.x+length-1][loc.y+1] = 1;
-	*/
+	
 }
 
 void State::updateState(const int& x, const int& y){
 stateOfMoves[x][y] = 1;
 }	
+
+

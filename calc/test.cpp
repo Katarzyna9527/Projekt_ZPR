@@ -3,190 +3,213 @@
 #include "Game.hpp"
 
 using namespace boost::unit_test;
-/*
-void test_case1()
-{
 
-	State *s = new State();
-	Direction dir1 = s->randomDirection();
-	Direction dir2 = s->randomDirection();
-	Direction dir3 = s->randomDirection();
-	Direction dir4 = s->randomDirection();
-	Direction dir5 = s->randomDirection();		
-	BOOST_CHECK_EQUAL(dir1,DOWN);
-	BOOST_CHECK_EQUAL(dir2,DOWN);
-	BOOST_CHECK_EQUAL(dir3,DOWN);
-	BOOST_CHECK_EQUAL(dir4,RIGHT);
-	BOOST_CHECK_EQUAL(dir5,RIGHT);
-}*/
+const int Length_4 = 4;
+const int Length_2 = 2;
 
-/*
-void test_case2()
-{
-	State *s = new State();
-	Position pos = s->random(4,RIGHT);
-	std::cout<<"Statek 4 RIGHT wspolrzedna x = "<<pos.x<<std::endl;
-	std::cout<<"Statek 4 RIGHT wspolrzedna y = "<<pos.y<<std::endl;
-	Position pos1 = s->random(1,DOWN);
-	std::cout<<"Statek 1 DOWN wspolrzedna x = "<<pos1.x<<std::endl;
-	std::cout<<"Statek 1 DOWN wspolrzedna y = "<<pos1.y<<std::endl;
-	Position pos2 = s->random(2,RIGHT);
-	std::cout<<"Statek 2 RIGHT wspolrzedna x = "<<pos2.x<<std::endl;
-	std::cout<<"Statek 2 RIGHT wspolrzedna y = "<<pos2.y<<std::endl;
-	Position pos3 = s->random(3,DOWN);
-	std::cout<<"Statek 3 DOWN wspolrzedna x = "<<pos3.x<<std::endl;
-	std::cout<<"Statek 3 DOWN wspolrzedna y = "<<pos3.y<<std::endl;		
-	BOOST_CHECK_EQUAL(1,1);
+bool checkShip(const int& x, const int& y,const int& length,const Direction& dir,const Board& board){
+	for(int i=0; i<length; ++i){
+		if(dir == RIGHT && board[x+i][y] == 0)return false;
+		if(dir == DOWN && board[x][y+i] == 0)return false;  
+	}
+return true;
+}
 
-}*/
 
-/*
+bool checkShipSpace(const int& x, const int& y,const int& length,const Direction& dir,const Board& board){
+	int xPom = x;	
+	int yPom = y;	
+	for (int i=0; i<length+2; ++i){
+		if(dir == RIGHT){
+		xPom =x+i-1;
+			if(xPom < BOARD_SIZE && xPom >= 0){
+				if(yPom-1>=0) {if(board[xPom][yPom-1]==1){ std::cout<<"1";return false;}}
+				if(yPom+1<BOARD_SIZE) {if(board[xPom][yPom+1]==1){std::cout<<"2";return false;}}
+			}			
+		}
+		else{
+		yPom =y+i-1;
+			if(yPom < BOARD_SIZE && yPom >= 0){
+				if(xPom-1>=0) {if(board[xPom-1][yPom]==1){std::cout<<"lol"<<x<<y<<" pom"<<xPom<<yPom<<"length"<<length;return false;}}
+				if(xPom+1<BOARD_SIZE) {if(board[xPom+1][yPom]==1){std::cout<<"4";return false;}}
+			}
+		}	
+	}//for
+	
+	if(dir == RIGHT){
+		if(x-1>=0){if(board[x-1][y]==1){std::cout<<"5";return false;}}
+		if(x+length<BOARD_SIZE){if(board[x+length][y]==1){std::cout<<"6";return false;}}
+	}
+	else{
+		if(y-1>=0){if(board[x][y-1]==1){std::cout<<"7";return false;}}
+		if(y+length<BOARD_SIZE){if(board[x][y+length]==1){std::cout<<"8";return false;}}	
+	}
+return true;	
+	
+}
+
+//-------------------------Class_Ship_tests----------------------- 
+
+//constructor test
+void test_case1(){
+	auto ship = std::make_shared<Ship>(Length_4);
+	int length = ship->getLength();
+	BOOST_CHECK_EQUAL(length,Length_4);
+}
+
+//setLocation funcion test
+void test_case2(){
+	auto ship = std::make_shared<Ship>(Length_4);
+	ship->setLocation(1,2,RIGHT);
+	BOOST_CHECK_EQUAL(ship->getX(),1);
+	BOOST_CHECK_EQUAL(ship->getY(),2);
+	BOOST_CHECK_EQUAL(ship->getDirection(),RIGHT);
+}
+
+//isHit function test
 void test_case3(){
-
-	bool **tab = new bool*[10];
-	for(int i=0; i<10; i++){
-	tab[i] = new bool[10];
-	for(int j=0; j<10; j++){
-	tab[i][j] = 0;
-	}
-	}
-	tab[0][0] = 0;
-	tab[0][1] = 0;
-	tab[5][5] = 0;
-	State *s = new State();
-	Location loc = s->findLocation(1,tab);
-	std::cout<<"Statek wspolrzedna x = "<<loc.x<<std::endl;
-	std::cout<<"Statek wspolrzedna y = "<<loc.y<<std::endl;	
-	std::cout<<"Statek direction = "<<loc.direction<<std::endl;		
-	BOOST_CHECK_EQUAL(0,0);
+	auto ship1 = std::make_shared<Ship>(Length_4);
+	auto ship2 = std::make_shared<Ship>(Length_2);
+	ship1->setLocation(0,0,RIGHT);	
+	ship2->setLocation(5,5,DOWN);
+	BOOST_CHECK_EQUAL(ship1->isHit(3,0),true);
+	BOOST_CHECK_EQUAL(ship2->isHit(5,5),true);
+	BOOST_CHECK_EQUAL(ship1->isHit(9,9),false);
 }
-*/
 
-/*
+//checkIsAlive function test
 void test_case4(){
-
-	bool **tab = new bool*[10];
-	for(int i=0; i<10; i++){
-	tab[i] = new bool[10];
-	for(int j=0; j<10; j++){
-	tab[i][j] = 0;
-	}
-	}
-	int shipLength = 2;
-	State *s = new State();	
-	Ship* ship =new Ship(shipLength);
-	Location loc = s->findLocation(shipLength,tab);
-	std::cout<<"Statek wspolrzedna x = "<<loc.x<<std::endl;
-	std::cout<<"Statek wspolrzedna y = "<<loc.y<<std::endl;	
-	std::cout<<"Statek direction = "<<loc.direction<<std::endl;
-	s->setShip(ship,tab,loc,shipLength);
-	for(int a= 0; a<BOARD_SIZE; a++){
-		for(int b=0;b<BOARD_SIZE;b++){	
-		std::cout<<s->stateOfShips[b][a]<<" ";
-		}
-	std::cout<<std::endl;
-	}
-
-}*/
-
-
-
-void test_case5(){
-	Player *player =  new Player(PINK,true);
-	State *s = new State(player);
-	//s->initializeState(player); 
-	for(int a= 0; a<BOARD_SIZE; a++){
-		for(int b=0;b<BOARD_SIZE;b++){	
-		std::cout<<s->stateOfShips[b][a]<<" ";
-		}
-	std::cout<<std::endl;
-	}
-}
-
-/*
-void test_case6(){
-	Game* game = new Game();
-	std::cout<<"Aktywny gracz "<< game->whichPlayerNow()<<std::endl;
-	game->changePlayer();
-	std::cout<<"Aktywny gracz "<< game->whichPlayerNow()<<std::endl;
-	game->changePlayer();
-	std::cout<<"Aktywny gracz "<< game->whichPlayerNow()<<std::endl;
-}
-*/
-/*
-void test_case7(){
-
-	Game* game = new Game();
-	bool** tab = game->getBoardOfShips(PINK);
-	for(int a= 0; a<BOARD_SIZE; a++){
-		for(int b=0;b<BOARD_SIZE;b++){	
-		std::cout<<tab[b][a]<<" ";
-		}
-	std::cout<<std::endl;
-	}
-	std::cout<<"Aktywny gracz "<< game->whichPlayerNow()<<std::endl;
-	game->changePlayer();
-	std::cout<<"Aktywny gracz "<< game->whichPlayerNow()<<std::endl;
-	game->changePlayer();
-	std::cout<<"Aktywny gracz "<< game->whichPlayerNow()<<std::endl;
-}*/
-/*
-void test_case8(){
-	int length = 4;
-	Ship* ship = new Ship(length);
+	auto ship = std::make_shared<Ship>(Length_4);
 	ship->setLocation(0,0,RIGHT);
-	//std::cout<<ship->isHit(0,0)<<std::endl;
 	ship->isHit(0,0);
+	ship->checkIsAlive();
+	BOOST_CHECK_EQUAL(ship->getIsAlive(),true);
 	ship->isHit(1,0);
 	ship->isHit(2,0);
-	ship->isHit(3,8);
-	ship->isAlive();
-	std::cout<<ship->isAlive_<<std::endl;
-}*/
+	ship->isHit(3,0);
+	ship->checkIsAlive();
+	BOOST_CHECK_EQUAL(ship->getIsAlive(),false);
+}
+//-------------------------Class_Player_tests---------------------------
+//constructor function test
+void test_case5(){
+	auto player = std::make_shared<Player>(PINK,true);
+	int numberOfShips = 0;
+	for(auto i=player->begin(); i!=player->end(); ++i) ++numberOfShips;
+	BOOST_CHECK_EQUAL(numberOfShips,10);
+	BOOST_CHECK_EQUAL(player->isActive(),true);
+	BOOST_CHECK_EQUAL(player->getVictory(),false);
+}
 
+//test setActive function
+void test_case6(){
+	auto player = std::make_shared<Player>(PINK,true);
+	player->setActive();
+	BOOST_CHECK_EQUAL(player->isActive(),false);
+}
+
+//---------------------Class_Move_tests----------------------------------
+//constructor function test
+void test_case7(){
+	auto move = std::make_shared<Move>(0,0,PINK);
+	BOOST_CHECK_EQUAL(move->getX(),0);
+	BOOST_CHECK_EQUAL(move->getY(),0);
+	BOOST_CHECK_EQUAL(move->getColor(),PINK);
+}
+
+//setMove funcion test
+void test_case8(){
+	auto move = std::make_shared<Move>(0,0,PINK);
+	move->setMove(2,5,PINK);
+	BOOST_CHECK_EQUAL(move->getX(),2);
+	BOOST_CHECK_EQUAL(move->getY(),5);
+	BOOST_CHECK_EQUAL(move->getColor(),PINK);
+}
+
+//---------------------Class_State_tests--------------------------------
+//constructor function test rest method are private
 void test_case9(){
-
-	Game* game = new Game();
-	Board board;
-	board = game->getBoardOfShipsSettings(PINK);
-
-	for(int a= 0; a<BOARD_SIZE; a++){
-		for(int b=0;b<BOARD_SIZE;b++){	
-		std::cout<<board[b][a]<<" ";
-		}
-	std::cout<<std::endl;
+	auto player = std::make_shared<Player>(PINK,true);
+	auto state = std::make_shared<State>(player);
+	int x, y, length;
+	Direction dir;
+	int shipsOk = 0;
+	int shipsSpaceOk = 0;
+	for(auto i=player->begin(); i!=player->end(); ++i){
+		x = (*i)->getX();
+		y = (*i)->getY();
+		length = (*i)->getLength();
+		dir = (*i)->getDirection();
+		if(checkShip(x,y,length,dir,state->getStateOfShips()))++shipsOk;
+		if(checkShipSpace(x,y,length,dir,state->getStateOfShips()))++shipsSpaceOk;
 	}
+	BOOST_CHECK_EQUAL(shipsOk,10);
+	BOOST_CHECK_EQUAL(shipsSpaceOk,10);
+}
+//update state function test
+void test_case10(){
+	auto player = std::make_shared<Player>(BLUE,true);
+	auto state = std::make_shared<State>(player);
+	state->updateState(2,5);
+	BOOST_CHECK_EQUAL(state->getStateOfMoves()[2][5],1);
 
-/*
-	Game* game = new Game();
-	for(int a= 0; a<BOARD_SIZE; a++){
-		for(int b=0;b<BOARD_SIZE;b++){	
-		std::cout<<game->statePlayerPink_->stateOfShips[b][a]<<" ";
+}
+//---------------------Class_Game_tests----------------------------------
+//whichPlayerNow function test
+void test_case11(){
+	auto game = std::make_shared<Game>();
+	BOOST_CHECK_EQUAL(game->whichPlayerNow(),PINK);
+}
+
+//executeMove function test
+void test_case12(){
+	auto game = std::make_shared<Game>();
+	auto move = std::make_shared<Move>(1,2,PINK);
+	game->executeMove(move);
+	BOOST_CHECK_EQUAL(game->whichPlayerNow(),BLUE);
+}
+
+//checkMove function test
+void test_case13(){
+	auto game = std::make_shared<Game>();
+	auto move = std::make_shared<Move>(1,2,PINK);
+	BOOST_CHECK_EQUAL(game->checkMove(move),true);
+	game->executeMove(move);
+	BOOST_CHECK_EQUAL(game->checkMove(move),false);
+}
+
+//checkVictory function test
+void test_case14(){
+	auto game = std::make_shared<Game>();
+	auto move = std::make_shared<Move>(0,0,PINK);
+	BOOST_CHECK_EQUAL(game->checkVictory(PINK),false);
+	for(int i=0; i<BOARD_SIZE; ++i){
+		for(int j=0; j<BOARD_SIZE; ++j){
+			move->setMove(j,i,PINK);
+			game->executeMove(move);		
 		}
-	std::cout<<std::endl;
-	}*/
-
-	//game->move_->setMove(2,2,BLUE);
-	//std::cout<<game->checkMove(game->move_)<<std::endl;
-	//game->executeMove(game->move_);
-	//std::cout<<"tablica ruchow ruzowego [x][y] ="<<game->statePlayerPink_->stateOfMoves[game->move_->x_][game->move_->y_]<<std::endl;
-	//std::cout<<game->checkMove(game->move_)<<std::endl;
-	
-	
-
+	}
+	BOOST_CHECK_EQUAL(game->checkVictory(PINK),true);
 }
 
 test_suite* init_unit_test_suite( int argc, char * argv[] )
 {
    
-	test_suite *ts0 = BOOST_TEST_SUITE( "CheckPlayersSuite" );
-	//ts0->add( BOOST_TEST_CASE( & test_case1 ) );
-	//ts0->add( BOOST_TEST_CASE( & test_case2 ) );
-   	//ts0->add( BOOST_TEST_CASE( & test_case3 ) );
-	//ts0->add( BOOST_TEST_CASE( & test_case4 ) );
-	//ts0->add( BOOST_TEST_CASE( & test_case5 ) );   
-	//ts0->add( BOOST_TEST_CASE( & test_case6 ) );
+	test_suite *ts0 = BOOST_TEST_SUITE( "gameTestsSuite" );
+	ts0->add( BOOST_TEST_CASE( & test_case1 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case2 ) );
+   	ts0->add( BOOST_TEST_CASE( & test_case3 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case4 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case5 ) );   
+	ts0->add( BOOST_TEST_CASE( & test_case6 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case7 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case8 ) );
 	ts0->add( BOOST_TEST_CASE( & test_case9 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case10 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case11 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case12 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case13 ) );
+	ts0->add( BOOST_TEST_CASE( & test_case14 ) );
 
 	framework::master_test_suite().add( ts0 );
     return 0;

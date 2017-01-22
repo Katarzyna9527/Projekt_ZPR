@@ -18,6 +18,7 @@ BOOST_PYTHON_MODULE(calc){
 		.value( "BLUE", BLUE )
 		;
 
+
 	boost::python::class_<std::vector <std::vector<bool> > >("Matrix")
 		.def(boost::python::vector_indexing_suite<std::vector <std::vector<bool> > >())
 		;
@@ -25,6 +26,7 @@ BOOST_PYTHON_MODULE(calc){
 	boost::python::class_<std::vector<bool> >("Vector")
 		.def(boost::python::vector_indexing_suite<std::vector<bool> >())
 		;
+
 
 	boost::python::class_<Move>("Move",boost::python::init<int,int,Color>())
 		;

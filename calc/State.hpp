@@ -3,8 +3,9 @@
 
 #include "Player.hpp"
 #include "Declarations.hpp"
-#include "boost/random.hpp"
-#include <ctime>
+
+static boost::random::mt19937 randGen(std::time(0));
+
 
 struct Position{
 int x,y;
@@ -16,24 +17,25 @@ Direction direction;
 };
 
 class State{
-public:
+private:
 
-bool **stateOfShips;
-bool **stateOfMoves;
-boost::random::mt19937 randGen;	
+Board stateOfShips;
+Board stateOfMoves;
+	
 
-
-void initializeState(Player* player);
-Location findLocation(const int& length,bool** tab);
+void initializeState(std::shared_ptr<Player> player);
+Location findLocation(const int& length,const Board& board);
 Direction randomDirection();
 Position randomPosition(const int& length,const Direction& dir);
-void setShip(Ship* ship, bool** tab, const Location& loc, const int& length);
+void setShip(std::shared_ptr<Ship> ship, Board& tabofForbiddenPos, const Location& loc, const int& length);
 
 
 public:
-State(){};
-State(Player* player);
+
+State(std::shared_ptr<Player> player);
 void updateState(const int& x, const int& y);
+Board getStateOfShips()const {return stateOfShips;}
+Board getStateOfMoves()const {return stateOfMoves;}
 
 };
 

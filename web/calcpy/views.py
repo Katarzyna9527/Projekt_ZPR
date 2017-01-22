@@ -100,10 +100,11 @@ def loginUser(params):
 def userMove(params):
 	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],")"
 	L.l.acquire()
-	#name=params["game"]
 	valid=0
 	hit=0
 	print "1"
+	x=params["x"]
+	y=params["y"]
 	try:
 		print "2"
 		for name in GameList.games.keys():
@@ -111,6 +112,7 @@ def userMove(params):
 			game=GameList.games[name]
 			player=params["token"]
 			if player == game["blue"]:
+				print "blue"
 				if game["game"].game.whichPlayerNow()==Color.BLUE and game["game"].shotsB[x][y]==None:
 					m=Move(params["y"],params["x"],Color.BLUE)
 					if game["game"].game.checkMove(m)==True:
@@ -125,6 +127,7 @@ def userMove(params):
 							game["game"].shotsB[x][y]=="miss"
 				break
 			elif player==game['pink']:
+				print "pink"
 				if game["game"].game.whichPlayerNow()==Color.PINK and game["game"].shotsP[x][y]==None:
 					m=Move(params["y"],params["x"],Color.PINK)
 					if game["game"].game.checkMove(m)==True:
@@ -158,7 +161,7 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 			if player == game['blue'] :
 				ships=game["game"].shipsB
 				shots=game["game"].shotsB
-				if game["game"].game.checkVictory(Color.BLUE)==1:
+				if game["game"].game.checkVictory(Color.BLUE)==True:
 					winner=True
 				else:
 					winner=False
@@ -168,7 +171,7 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 			elif player == game['pink']:
 				ships=game["game"].shipsP
 				shots=game["game"].shotsP
-				if game["game"].game.checkVictory(Color.PINK)==1:
+				if game["game"].game.checkVictory(Color.PINK)==True:
 					winner=True
 				else:
 					winner=False
