@@ -54,11 +54,11 @@ angular.module('myAppControllers', [])
 									 $scope.shotlist[xpos][ypos]="miss"; }
 
 								 $scope.turn = false;
-								 $scope.REFRESH_INTERVAL = 1000;
+								 $scope.REFRESH_INTERVAL = 2000;
 								 }, function() {}, xpos, ypos, token, game);
 						 };
 
-						 $scope.REFRESH_INTERVAL = 3000;
+						 $scope.REFRESH_INTERVAL = 5000;
 						 var refresh = function() {
 						 	srvInfo.doGetBoards(function(data) {
 								console.log(data);

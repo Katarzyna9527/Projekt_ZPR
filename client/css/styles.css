@@ -70,7 +70,11 @@ body {
 	background-color: #333;
 }
 
-.shiptile {
+.shiptilemiss {
+	background-color: lightgrey;
+}
+
+.shiptilenull {
 	background-color: #66f;
 }
 
@@ -82,8 +86,12 @@ body {
 	background-color: #222!important;
 }
 
-.shottile {
+.shottilenull {
 	background-color: #33b;
+}
+
+.enemy.false {
+	background-color: #ddd;
 }
 
 .enemy.true {
