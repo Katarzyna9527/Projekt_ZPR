@@ -208,7 +208,6 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 			else:
 				if turning_player == color:
 					turn = True
-<<<<<<< a56903d870a5c53ccd59ab3ff165e2e5d2d849c2
 
 				for c in [color, oponent_color]:
 					if game["game"].game.checkVictory(c) == True:
@@ -235,42 +234,7 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 								break
 						conn.close()
 						break
-=======
-				if game["game"].game.checkVictory(color) == True:
-					winner=True
-					conn=psycopg2.connect(database="mydb",user="mydb",password="mydb",host="127.0.0.1", port="5432")
-					cur=conn.cursor()
-					cur.execute("SELECT PASSWORD_HASH,LOGIN,WINS FROM game_users")
-					rows=cur.fetchall()
-					print "lol"
-					for row in rows:
-						if getToken(str(row[0]),str(row[1])) == params["token"]:
-							row[2]=int(row[2])+1
-							cur.execute(("UPDATE game_users SET WINS={} WHERE LOGIN=\'{}\'").format(row[2],row[1]))
-							conn.commit()
-							break
-					print "lol"
-					conn.close()
-					game["game"].is_over = True
-				elif game["game"].game.checkVictory(oponent_color) == True:
-					winner=False
-					conn=psycopg2.connect(database="mydb",user="mydb",password="mydb",host="127.0.0.1", port="5432")
-					cur=conn.cursor()
-					cur.execute("SELECT PASSWORD_HASH,LOGIN,LOSES FROM game_users")
-					rows=cur.fetchall()
-					print "lol"
-					for row in rows:
-						if getToken(str(row[0]),str(row[1])) == params["token"]:
-							row[2]=int(row[2])+1
-							cur.execute(("UPDATE game_users SET LOSES={} WHERE LOGIN=\'{}\'").format(row[2],row[1]))
-							conn.commit()
-							break
-					print "lol"
-					conn.close()
-					game["game"].is_over = True
-				ships = game["game"].ships[color]
-				shots = game["game"].shots[color]
->>>>>>> znowu testy
+
 	finally:
 		L.l.release()
 		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid": valid, "time_left": str(time_left).split(".")[0] }
