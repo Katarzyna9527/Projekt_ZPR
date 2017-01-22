@@ -191,6 +191,8 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 			valid=True
 
 			(color, oponent_color) = getColors(player == game["players"]["blue"].token)
+			ships = game["game"].ships[color]
+			shots = game["game"].shots[color]
 
 			if game["game"].is_over:
 				winner = (game["game"].winner == color)
@@ -201,18 +203,37 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 			if time_left.seconds < 0 or time_left.seconds > 61:
 				time_left = "0.0"
 				winner = (color != turning_player)
+				game["game"].is_over = True
+				game["game"].winner = turning_player
 			else:
 				if turning_player == color:
 					turn = True
+
 				for c in [color, oponent_color]:
 					if game["game"].game.checkVictory(c) == True:
 						game["game"].is_over = True
 						game["game"].winner = c
-						winner = c == turning_player
+						winner = (c == turning_player)
+						conn=psycopg2.connect(database="mydb",user="mydb",password="mydb",host="127.0.0.1", port="5432")
+						cur=conn.cursor()
+						cur.execute("SELECT PASSWORD_HASH,LOGIN,WINS,LOSES FROM game_users")
+						rows=cur.fetchall()
+						for row in rows:
+							if getToken(str(row[0]),str(row[1])) == params["token"]:
+								winner_color = {Color.BLUE: "blue", Color.PINK: "pink"}[c]
+								loser_color = {"pink": "blue", "blue": "pink"}[winner_color]
+								loser_login = game["players"][loser_color].login
+								winner_login = game["players"][winner_color].login
+								if (winner):
+									row[2]=int(row[2])+1
+									cur.execute(("UPDATE game_users SET WINS={} WHERE LOGIN=\'{}\'").format(row[2],winner_login))
+								else:
+									row[3]=int(row[3])+1
+									cur.execute(("UPDATE game_users SET LOSES={} WHERE LOGIN=\'{}\'").format(row[3],loser_login))
+								conn.commit()
+								break
+						conn.close()
 						break
-
-				ships = game["game"].ships[color]
-				shots = game["game"].shots[color]
 	finally:
 		L.l.release()
 		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid": valid, "time_left": str(time_left).split(".")[0] }
@@ -263,7 +284,7 @@ def getPlayerInfo(params):
 		rows=cur.fetchall()
 		for row in rows:
 			if getToken(str(row[0]),str(row[1])) == params["token"]:
-				ratio=(float(row[1]))/(float(row[2]))
+				ratio=(float(row[2]))/(float(row[3])+float(row[2]))
 	finally:
 		conn.close()
 		L.l.release()
