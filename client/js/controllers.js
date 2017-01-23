@@ -97,7 +97,7 @@ angular.module('myAppControllers', [])
 						 };
 
 						 $scope.on_submit_replay = function() {
-							 srvInfo.requestReplay(function() {$scope.timeout_promise = $timeout(refresh, 0);}, function() {}, token, $scope.game);
+							 srvInfo.requestReplay(function() {$scope.timeout_promise = $timeout(refresh, 0);}, token, $scope.game);
 						 };
 
 						 /// Leave handler
