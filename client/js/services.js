@@ -71,7 +71,7 @@ angular.module('myAppServices', [])
 				 };
 
 				 /// Request replay
-				 this.requestReplay = function(token, game) {
-					 return $http.get(this.baseURL + 'calcpy/onReplayRequest', { params: { 'token': token, 'game': game } });
+				 this.requestReplay = function(callback, token, game) {
+					 return $http.get(this.baseURL + 'calcpy/onReplayRequest', { params: { 'token': token, 'game': game } }).success(callback);
 				 };
 			 });

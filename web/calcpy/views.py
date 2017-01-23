@@ -331,9 +331,13 @@ def onReplayRequest(params):
 				pass
 			else:
 				if game["players"][opositeColor(color)].wants_replay:
-					GameList.games[game_name] = { "players": { Color.BLUE: game["players"][color.BLUE], Color.PINK: game["players"][color.PINK] }, 'game': GameStub() }
+					blue = game["players"][color.BLUE]
+					pink = game["players"][color.PINK]
+					del GameList.games[game_name]
+					GameList.games[game_name] = { "players": { Color.BLUE: blue, Color.PINK: pink }, 'game': GameStub() }
+					game["players"][opositeColor(color)].wants_replay = True
 				else:
 					game["players"][color].wants_replay = True
-	finnaly:
+	finally:
 		L.l.release()
 		return {}
