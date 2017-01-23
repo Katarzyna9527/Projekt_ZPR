@@ -8,14 +8,30 @@ import threading
 import datetime as dt
 import hashlib
 
+##Class representing a logged in Player.
+#It consists of a player's name and token.
 class Player:	
+	##Constructor of the Player Class
+	#@param self The object pointer
+	#@param name Name of a newly logged player
+	#@param token Token for a newly logged player
 	def __init__(self, name, token):
+		## Individual name of a logged player
 		self.name = name
+		## Individual token of a logged player
 		self.token = token
 		self.wants_replay = False
 
+##Class representing a list of all games existing in the moment.
 class GameList:
+	##Additional integer used to make name of every game different
 	cid = 1
+	##Dictionary containing every game currently having place.
+	#The name of the game is the key.
+	#Under every key there is another dictionary with two keys: "players" and "game".
+	#Under "game" key there is GameStub class element representing a game.
+	#Under "players" key there is another dictionary consisting of two keys: "blue" and "pink".
+	#Under each of the "players" keys there is a Player object representing one of the players taking part in the game.
 	games = {}
 
 def getColor(game, token):
@@ -28,19 +44,34 @@ def getColor(game, token):
 def opositeColor(color):
 	return {Color.BLUE: Color.PINK, Color.PINK: Color.BLUE}[color]
 
+##This function return a token value for a chosen Player.
+#@param name Name of the chosen Player.
+#@param password Password of the chosen Player.
 def getToken(password, name):
 	m = hashlib.md5()
 	m.update(str(password)+str(name)+"arydn2")
 	return m.hexdigest()
 
+##Class representing a single game object. 
 class GameStub:
+	##Size of a game table dimension.
 	BOARDSIZE = 10
+	##GameStub constructor. Called when creating a new Game on GameList.
+	#@param self The GameStub object pointer.
 	def __init__(self):
+		##Game object from calculation library.
 		self.game=Game()
+		##Dictionary with two keys: Color.BLUE and Color.PINK.
+		#Under each key there is a table containing ships of the game Player marked in the GameList under the corresponding color.
 		self.ships = {}
+		##Dictionary with two keys: Color.BLUE and Color.PINK.
+		#Under each key there is a table containing shots of the game Player marked in the GameList under the corresponding color.
 		self.shots = {}
+		##Time when player had made his last Move.
 		self.last_move_time = dt.datetime.now()
+		##Marker representing the end of the Game.
 		self.is_over = False
+		##Marker representing the color of the Game winner.
 		self.winner = None
 		for color in [Color.BLUE, Color.PINK]:
 			self.ships[color]=[[None for y in range(GameStub.BOARDSIZE)] for x in range(GameStub.BOARDSIZE)]
@@ -50,7 +81,7 @@ class GameStub:
 		v=Vector()
 		v[:]=[True,True,True,True,True,True,True,True,True,True]
 		m[:]=[v,v,v,v,v,v,v,v,v,v]
-
+		#Filling ships tables
 		out="BLUE\n"
 		m=self.game.getBoardOfShipsSettings(Color.BLUE)
 		for i in range(0,GameStub.BOARDSIZE):
@@ -73,15 +104,20 @@ class GameStub:
 			out+="\n"
 		print(out)
 
+##Simple mutex class using a threading.lock() mechanism.
 class L:
 	l=threading.Lock()
 
+##Function for logging in users in the database.
+#Returns an individual token of a newly logged Player.
+#@param params Dictionary with two keys: "name" and "pass", which represent player's username and password. 
 def loginUser(params):
 	L.l.acquire()
 	token=None
 	try:
 		conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
 		cur=conn.cursor()
+		#check if the database exist and if not create one
 		cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
 		rows=cur.fetchall()
 		if len(rows)==0:
@@ -92,25 +128,30 @@ def loginUser(params):
 				WINS            INT     NOT NULL,
 			LOSES           INT     NOT NULL);''')
 			conn.commit()
+		#compare name and password with the database
 		cur.execute("SELECT ID,LOGIN,PASSWORD_HASH FROM GAME_USERS")
 		rows=cur.fetchall()
 		for row in rows:
 			m = hashlib.md5()
 			m.update(str(params["pass"]))
 			in_password = m.hexdigest()
+			#data correct
 			if row[1]==params["name"] and row[2]==in_password:
 				token = getToken(str(in_password), str(params["name"]))
 	finally:
 		conn.close()
 		L.l.release()
 		return { "session-token": token }
-
+##Function for registering new user into the database.
+#Returns token of the newly registered player.
+#@param params Dictionary with two keys: "name" and "pass", which represent player's username and password. 
 def registerUser(params):
 	valid = True
 	L.l.acquire()
 	try:
 		conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
 		cur=conn.cursor()
+		#check if the database exist and if not create one
 		cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
 		rows=cur.fetchall()
 		if len(rows)==0:
@@ -125,12 +166,15 @@ def registerUser(params):
 		rows=cur.fetchall()
 		newId=1
 		for row in rows:
-			if row[1]==params["name"]: # User is already in the database
+			# User is already in the database
+			if row[1]==params["name"]: 
 				valid = False
 				raise
+			#generate new id for a new player
 			elif row[0]>=newId:
 				newId=row[0]+1
 		if valid:
+			#put new player into database
 			m = hashlib.md5()
 			m.update(str(params["pass"]))
 			in_password = m.hexdigest()
@@ -139,13 +183,15 @@ def registerUser(params):
 	finally:
 		conn.close()
 		L.l.release()
+		#if registration successful log in user
 		if valid:
 			return loginUser(params)
 		else:
 			return { "session-token": None}
 
 
-
+##Function that execute move requested by the player.
+#@param params Dictionary with four keys: "game","token","x" and "y". They represent a move made by the player marked with "token" in the Game named "game". The coordinates of the shot are "x" and "y".
 def userMove(params):
 	valid=False
 	x=int(params["x"])
@@ -185,7 +231,10 @@ def updatePlayerStats(game):
 	conn.commit()
 	conn.close()
 
-def getBoards(params): # uwaga odwrocone osie (x/y)
+##This is the main function of the server. 
+#It returns table of player's ships, shots, whose turn it is, if there is a winner, and how much time the player has for the move before he/she loses.
+#@ param params Dictionary with two keys: "token" and "game", which represent calling player's token and game the player plays. 
+def getBoards(params): 
 	name = params["game"]
 	valid=False
 	winner=None
@@ -239,6 +288,7 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 		L.l.release()
 		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid": valid, "time_left": str(time_left).split(".")[0] }
 
+##Function returning all of the games (their names and players who are already in) except from full and empty ones
 def getGames(params):
 	L.l.acquire()
 	try:
@@ -247,16 +297,21 @@ def getGames(params):
 		L.l.release()
 		return { "games": games }
 
+##Function for adding a player to the game, a new or old one.
+#It returns the name of the game.
+#@param params Dictionary with three keys: "game", "login" and "token", which represent the game's name and player's username and token. 
 def getGame(params):
 	name = params['game']
 	valid = False
 	L.l.acquire()
 	try:
+		#create new game
 		if name == 'New Game':
 			name = 'Game '+str(GameList.cid)
 			GameList.cid += 1
 			GameList.games[name] = { "players": { Color.BLUE: Player(params['login'], params['token']), Color.PINK: None }, 'game': GameStub() }
 			valid=True
+		#add player to existing game
 		elif name in GameList.games.keys():
 			game = GameList.games[name]
 			if game["game"].is_over:
@@ -269,12 +324,15 @@ def getGame(params):
 		L.l.release()
 		return { "game": name, "valid": valid }
 
+##Function returning wins/loses ratio of the chosen player.
+#@param params Dictionary with only one key: "token" which represent player's individual token. 
 def getPlayerInfo(params):
 	ratio=0
 	L.l.acquire()
 	try:
 		conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
 		cur=conn.cursor()
+		#create database if it doesn't exist
 		cur.execute("SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='game_users'")
 		rows=cur.fetchall()
 		if len(rows)==0:
@@ -287,6 +345,7 @@ def getPlayerInfo(params):
 			conn.commit()
 		cur.execute("SELECT PASSWORD_HASH,LOGIN,WINS,LOSES FROM GAME_USERS")
 		rows=cur.fetchall()
+		#get the ratio
 		for row in rows:
 			if getToken(str(row[0]),str(row[1])) == params["token"]:
 				ratio=(float(row[2]))/(float(row[3])+float(row[2]))
@@ -295,6 +354,8 @@ def getPlayerInfo(params):
 		L.l.release()
 		return { "win_ratio": ratio }
 
+##Function handling Player leaving the Game and deleting the game
+#@param params Dictionary with two keys: "token" and "game", which represent player's token and game's name. 
 def onPlayerLeave(params):
 	token = params['token']
 	game = params['game']
