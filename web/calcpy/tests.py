@@ -114,11 +114,108 @@ class CalcPyViewTestCase(django.test.TestCase):
 	views.getGame(params2)
 	g=views.getGames(params1)
 	self.assertEqual(g["games"],[("Game 1","test1"),("Game 2","test1"),("Game 3","test1")])
-	#get
-    #def test
-
-
-
+	#opositeColor test
+    def test06opositeColor(self):
+	self.assertEqual(views.opositeColor(calc.Color.BLUE),calc.Color.PINK)
+	self.assertEqual(views.opositeColor(calc.Color.PINK),calc.Color.BLUE)
+	#getColor test
+    def test07getColor(self):
+	params1={"name":"test1","pass":"test1"}
+	token1=views.loginUser(params1)['session-token']
+	self.assertEqual(views.getColor(views.GameList.games["Game 1"],token1),calc.Color.BLUE)
+	#getBoards test
+    def test08getBoards(self):
+	params1={"name":"test1","pass":"test1"}
+	params2={"name":"test2","pass":"test2"}
+	token1=views.loginUser(params1)['session-token']
+	token2=views.registerUser(params2)['session-token']
+	params3={"game":'Game 1',"login":'test2',"token":token2}
+	views.getGame(params3)
+	params4={"game":'Game 1',"token":token1}
+	params5={"game":'Game 1',"token":token2}
+	b1=views.getBoards(params4)
+	b2=views.getBoards(params5)
+	self.assertEqual(b1["winner"],None)
+	self.assertEqual(b1["valid"],True)
+	self.assertEqual(b1["turn"],False)
+	self.assertEqual(b1["ships"],views.GameList.games["Game 1"]["game"].ships[calc.Color.BLUE])
+	self.assertEqual(b1["shots"],views.GameList.games["Game 1"]["game"].shots[calc.Color.BLUE])
+	self.assertEqual(b2["winner"],None)
+	self.assertEqual(b2["valid"],True)
+	self.assertEqual(b2["turn"],True)
+	self.assertEqual(b2["ships"],views.GameList.games["Game 1"]["game"].ships[calc.Color.PINK])
+	self.assertEqual(b2["shots"],views.GameList.games["Game 1"]["game"].shots[calc.Color.PINK])
+	#userMove test
+    def test09userMove(self):
+	params1={"name":"test1","pass":"test1"}
+	params2={"name":"test2","pass":"test2"}
+	token1=views.loginUser(params1)['session-token']
+	token2=views.loginUser(params2)['session-token']
+	params3={"game":'Game 1',"token":token2,"x":int(1),"y":int(2)}
+	params4={"game":'Game 1',"token":token1}
+	params5={"game":'Game 1',"token":token2}
+	b01=views.getBoards(params4)
+	b02=views.getBoards(params5)
+	m1=views.userMove(params3)
+	b1=views.getBoards(params4)
+	b2=views.getBoards(params5)
+	self.assertEqual(m1["valid"],True)
+	self.assertEqual(b01["turn"],False)
+	self.assertEqual(b02["turn"],True)
+	self.assertEqual(b1["turn"],True)
+	self.assertEqual(b2["turn"],False)
+	#updatePlayerStats and getPlayerInfo test
+    def test10updatePlayerStats11getPlayerInfo(self):
+	params1={"name":"test1","pass":"test1"}
+	params2={"name":"test2","pass":"test2"}
+	token1=views.loginUser(params1)['session-token']
+	token2=views.loginUser(params2)['session-token']
+	views.GameList.games["Game 1"]["game"].is_over=True
+	views.GameList.games["Game 1"]["game"].winner=calc.Color.BLUE
+	views.updatePlayerStats(views.GameList.games["Game 1"])
+	self.assertEqual(views.getPlayerInfo({"token":token1})["win_ratio"],1)
+	self.assertEqual(views.getPlayerInfo({"token":token2})["win_ratio"],0)
+	#onReplayRequest test
+    def test12onReplayRequest(self):
+	params1={"name":"test1","pass":"test1"}
+	params2={"name":"test2","pass":"test2"}
+	token1=views.loginUser(params1)['session-token']
+	token2=views.loginUser(params2)['session-token']
+	params3={"game":'Game 1',"token":token1}
+	params4={"game":'Game 1',"token":token2}
+	views.onReplayRequest(params3)
+	views.onReplayRequest(params4)
+	b1=views.getBoards(params3)
+	b2=views.getBoards(params4)
+	self.assertEqual(b1["winner"],None)
+	self.assertEqual(b1["valid"],True)
+	self.assertEqual(b1["turn"],False)
+	self.assertEqual(b1["ships"],views.GameList.games["Game 1"]["game"].ships[calc.Color.BLUE])
+	self.assertEqual(b1["shots"],views.GameList.games["Game 1"]["game"].shots[calc.Color.BLUE])
+	self.assertEqual(b2["winner"],None)
+	self.assertEqual(b2["valid"],True)
+	self.assertEqual(b2["turn"],True)
+	self.assertEqual(b2["ships"],views.GameList.games["Game 1"]["game"].ships[calc.Color.PINK])
+	self.assertEqual(b2["shots"],views.GameList.games["Game 1"]["game"].shots[calc.Color.PINK])
+	self.assertEqual(b2["shots"],b1["shots"])
+	#onPlayerLeave test
+    def test13onPlayerLeave(self):
+	params1={"name":"test1","pass":"test1"}
+	token1=views.loginUser(params1)['session-token']
+	g1=views.getGames(params=None)
+	self.assertEqual(g1["games"],[("Game 2","test1"),("Game 3","test1")])
+	views.onPlayerLeave({"game":'Game 2',"token":token1})
+	g1=views.getGames(params=None)
+	self.assertEqual(g1["games"],[("Game 3","test1")])
+	#to clear database
+    def testInf(self):
+	del views.GameList
+	conn=psycopg2.connect(database=version.models.getDBName(), user=version.models.getDBUser(), password=version.models.getDBPassword(), host="127.0.0.1", port="5432")
+	cur=conn.cursor()
+	cur.execute("DELETE FROM game_users WHERE LOGIN='test1'")
+	cur.execute("DELETE FROM game_users WHERE LOGIN='test2'")
+	conn.commit()
+	conn.close()
 
 '''
 	##getGame test

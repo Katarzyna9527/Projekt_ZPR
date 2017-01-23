@@ -9,7 +9,7 @@ import datetime as dt
 import hashlib
 
 ##Class representing a logged in Player.
-#It consists of a player's name and token.
+#It consists of a player's name, token and replay flag.
 class Player:	
 	##Constructor of the Player Class
 	#@param self The object pointer
@@ -20,6 +20,7 @@ class Player:
 		self.name = name
 		## Individual token of a logged player
 		self.token = token
+		##Flag saying if player want a replay
 		self.wants_replay = False
 
 ##Class representing a list of all games existing in the moment.
@@ -34,6 +35,10 @@ class GameList:
 	#Under each of the "players" keys there is a Player object representing one of the players taking part in the game.
 	games = {}
 
+## This function checks if the chosen player is playing the chosen game.
+#If yes it returns the player's color.
+#@param game The chosen game
+#@paran token Token of the chosen player
 def getColor(game, token):
 	for c in [Color.BLUE, Color.PINK]:
 		if game["players"][c] is not None:
@@ -41,6 +46,8 @@ def getColor(game, token):
 				return c
 	return None
 
+##This function return the opposite color to the one it received.
+#@param color Received color
 def opositeColor(color):
 	return {Color.BLUE: Color.PINK, Color.PINK: Color.BLUE}[color]
 
@@ -201,10 +208,13 @@ def userMove(params):
 	try:
 		game = GameList.games[name]
 		token = params["token"]
+		#if player doesn't belong to the game
 		if token not in [player.token for player in game["players"].values()]:
 			raise
 		color = getColor(game, token)
+		#check player's color
 		if game["game"].game.whichPlayerNow() == color:
+			#create and execute move
 			m = Move(x, y, color)
 			if game["game"].game.checkMove(m):
 				game["game"].last_move_time = dt.datetime.now()
@@ -219,10 +229,13 @@ def userMove(params):
 		L.l.release()
 		return { "valid": valid }
 
+##This function updates number of wins and loses for both players in the chosen game.
+#@param game Chosen ended game to update its players stats.
 def updatePlayerStats(game):
+	#get player logins
 	loser_login = game["players"][opositeColor(game["game"].winner)].name
 	winner_login = game["players"][game["game"].winner].name
-
+	#update database
 	conn=psycopg2.connect(database="mydb",user="mydb",password="mydb",host="127.0.0.1", port="5432")
 	cur=conn.cursor()
 	cur.execute(("UPDATE game_users SET wins = wins + 1 WHERE LOGIN = \'{}\'").format(winner_login))
@@ -247,10 +260,12 @@ def getBoards(params):
 	try:
 		game = GameList.games[name]
 		if not game["game"].is_over:
+			#if one of the players exit the game
 			for p in game["players"]:
 				if game["players"][p] is None:
 					game["game"].last_move_time = dt.datetime.now()
 					raise
+			#if the chosen player doesn't belong to the game
 			if token not in [p.token for p in game["players"].values()]:
 				raise
 
@@ -267,6 +282,7 @@ def getBoards(params):
 		turning_player = game["game"].game.whichPlayerNow()
 
 		time_left = game["game"].last_move_time - dt.datetime.now() + dt.timedelta(seconds=30)
+		#if time is up for the player then he/she loses
 		if time_left.seconds < 0 or time_left.seconds > 61:
 			time_left = "0.0"
 			game["game"].is_over = True
@@ -276,7 +292,7 @@ def getBoards(params):
 		else:
 			if turning_player == color:
 				turn = True
-
+			#check for winner
 			for c in [color, opositeColor(color)]:
 				if game["game"].game.checkVictory(c) == True:
 					game["game"].is_over = True
@@ -363,11 +379,14 @@ def onPlayerLeave(params):
 	try:
 		if game not in GameList.games.keys():
 			pass
+		#if game is over reset the player data
 		elif (GameList.games[game]["game"].is_over):
 			GameList.games[game]["players"][getColor(GameList.games[game], token)] = None
 		else:
+			#if there are no players in the game
 			if None in [GameList.games[game]["players"][color] for color in [Color.BLUE, Color.PINK]]:
 				del GameList.games[game]
+			#if one of the players left
 			else:
 				color = getColor(GameList.games[game], token)
 				GameList.games[game]["game"].is_over = True
@@ -378,6 +397,8 @@ def onPlayerLeave(params):
 		L.l.release()
 		return {}
 
+##This function allows to play another game with the same opponent.
+#@param params Dictionary with two keys: "token" and "game", which represent player's token and game's name. 
 def onReplayRequest(params):
 	token = params['token']
 	game_name = params['game']
@@ -385,7 +406,8 @@ def onReplayRequest(params):
 	try:
 		if game_name not in GameList.games.keys():
 			pass
-		elif (GameList.games[game]["game"].is_over):
+		#check game for players
+		elif (GameList.games[game_name]["game"].is_over):
 			game = GameList.games[game_name]
 			color = getColor(game, token)
 			if game["players"][opositeColor(color)] is None:
@@ -394,6 +416,7 @@ def onReplayRequest(params):
 				if game["players"][opositeColor(color)].wants_replay:
 					blue = game["players"][color.BLUE]
 					pink = game["players"][color.PINK]
+					#delete game and create new for the same players
 					del GameList.games[game_name]
 					GameList.games[game_name] = { "players": { Color.BLUE: blue, Color.PINK: pink }, 'game': GameStub() }
 					game["players"][opositeColor(color)].wants_replay = True
