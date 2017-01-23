@@ -1,5 +1,6 @@
 /// @file controllers.js
 /// @brief AngularJS controllers
+/// 
 
 angular.module('myAppControllers', [])
 	.controller('loginController',
@@ -9,7 +10,14 @@ angular.module('myAppControllers', [])
 				 function($scope, $location, srvInfo) {
 					 /// Login success handler
 					 /// @param data - dictionary holding a token (null if login failed)
-					 var callback = function (data) { if (data.data["session-token"]) { token = data.data["session-token"]; $location.path('/list').search('token',token).search('login',$scope.account_name); } else { $scope.login_failed = true; }};
+					 var callback = function (data) {
+						 if (data.data["session-token"]) {
+							 token = data.data["session-token"]; 
+							 $location.path('/list').search('token',token).search('login',$scope.account_name);
+						 } else {
+							 $scope.login_failed = true;
+					 }};
+
 					 var fallback = function () { console.log("Login failed"); $scope.login_failed = true; };
 
 					 $scope.login_failed = false;
@@ -41,6 +49,7 @@ angular.module('myAppControllers', [])
 						 $scope.time_left = "-";
 
 						 $scope.turn = true;
+
 						 /// Gamecell click handler
 						 /// @param xpos - x coordinate
 						 /// @param ypos - y coordinate
@@ -70,24 +79,26 @@ angular.module('myAppControllers', [])
 								
 							$scope.timeout_promise = $timeout(refresh, $scope.REFRESH_INTERVAL);
 
+							/// Check if what came has sensible data
 							$scope.turn = false;
 							if (data.data["valid"] === false) {
 								return;
 							}
 
+							/// What we have is reasonable
 							$scope.won = data.data["winner"];
 							$scope.time_left = data.data["time_left"];
 							$scope.shiplist = data.data["ships"]; 
 							$scope.shotlist = data.data["shots"];
+							$scope.turn = data.data["turn"];
+		
+							/// If the game is over, cancel timeout
 							if (data.data["winner"] === true || data.data["winner"] === false) {
 								srvInfo.doGetPlayerInfo(function(data) { $scope.winrate = data.data["win_ratio"]; }, function(){}, token);
-								$timeout.cancel($scope.timeout_promise);
-								return;
+								$scope.REFRESG_INTERVAL = 10000;
+							} else {
+								$scope.REFRESG_INTERVAL = 1000;
 							}
-
-							$scope.shiplist = data.data["ships"]; 
-							$scope.shotlist = data.data["shots"];
-							$scope.turn = data.data["turn"];
 						 };
 
 						 $scope.REFRESH_INTERVAL = 1000;
@@ -96,14 +107,21 @@ angular.module('myAppControllers', [])
 						 	srvInfo.doGetBoards(get_boards_handler, function() {}, token, $scope.game);
 						 };
 
+						 /// Replay request handler
+						 /// Tell server user wants a replay and get boards
 						 $scope.on_submit_replay = function() {
-							 srvInfo.requestReplay(function() {$scope.timeout_promise = $timeout(refresh, 0);}, token, $scope.game);
+							 srvInfo.requestReplay(function() {
+							 	 $timeout.cancel($scope.timeout_promise);
+								 $scope.timeout_promise = $timeout(refresh, 0);
+							 }, token, $scope.game);
 						 };
 
 						 /// Leave handler
-						 /// Deregisters user from game
+						 /// Stop calling getBoards after user left the game screen
 						 $scope.onLeave = function() {
 							 $timeout.cancel($scope.timeout_promise);
+
+							 /// Notify the server user left
 							 srvInfo.playerLeft(token, $scope.game);
 						 };
 						 
@@ -131,8 +149,12 @@ angular.module('myAppControllers', [])
 						 /// Handles game list element click
 						 /// @param game - clicked game (name)
 						 $scope.gameClicked = function (game) {
+							 /// Handles game request reply
+							 /// @param data - hols information about validity and game name
 							 var callback = function(data) { if (data.data['valid']) { $location.path('/play').search('game',data.data['game']).search('token',token).search('login',login); }  };
 							 var fallback = function() {};
+
+							 /// Request the game
 							 srvInfo.doGetGame(callback, fallback, token, game, login);
 						 };
 
@@ -142,7 +164,10 @@ angular.module('myAppControllers', [])
 						 var refresh = function() {
 							 var callback = function(data) { $scope.gamelist = data.data['games']; $scope.gamelist.push(['New Game']); };
 							 var fallback = function() {};
+							 /// Update games list
 							 srvInfo.doGetGames(callback, fallback, token);
+
+							 /// Update player info
 						 	 srvInfo.doGetPlayerInfo(function(data) { $scope.winrate = data.data["win_ratio"]; }, function(){}, token);
 							 timeout_promise = $timeout(refresh, $scope.REFRESH_INTERVAL); //start calling the service
 						 };
