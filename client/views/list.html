@@ -3,10 +3,11 @@
     @brief the AngularJS partial 'about'
 -->
 
+<div ng-controller="listController">
 <center>
 <h1>Game list</h1>
+<h3>Current win rate: {{winrate}}</h3>
 </center>
-<div ng-controller="listController">
 
 <table class="gamelist">
 	<tr ng-repeat="game in gamelist">

@@ -3,9 +3,7 @@
 
 var injector = angular.injector(['ng', 'myApp']);
 var srv = injector.get('srvInfo')
-var srv2 = injector.get('srvCommands')
 srv.baseURL = "http://127.0.0.1:50008/"; //port for srv.py mock service
-srv2.baseURL = "http://127.0.0.1:50008/"; //port for srv.py mock service
 
 module( "test02_services", {
     setup: function() {
@@ -30,10 +28,10 @@ asyncTest( "service getVersion", function() {
 		100);
 });
 
-asyncTest( "service getCurrent", function() {
+asyncTest( "service doRegisterUser", function() {
     expect( 1 );
 	var srv = injector.get('srvInfo');
-	srv.getCurrent(functionResponseCheck);
+	srv.doRegisterUser(functionResponseCheck);
     setTimeout(
 		function() {
 			start();
@@ -41,10 +39,10 @@ asyncTest( "service getCurrent", function() {
 		100);
 });
 
-asyncTest( "service getCppNumber", function() {
+asyncTest( "service doUserMove", function() {
     expect( 1 );
 	var srv = injector.get('srvInfo');
-	srv.getCppNumber(functionResponseCheck);
+	srv.doUserMove(functionResponseCheck);
     setTimeout(
 		function() {
 			start();
@@ -52,10 +50,10 @@ asyncTest( "service getCppNumber", function() {
 		100);
 });
 
-asyncTest( "service getCppCommands", function() {
+asyncTest( "service doGetBoards", function() {
     expect( 1 );
-	var srv2 = injector.get('srvCommands');
-	srv2.getCppCommands(functionResponseCheck);
+	var srv = injector.get('srvInfo');
+	srv.doGetBoards(functionResponseCheck);
     setTimeout(
 		function() {
 			start();
@@ -63,6 +61,46 @@ asyncTest( "service getCppCommands", function() {
 		100);
 });
 
+asyncTest( "service doGetGames", function() {
+    expect( 1 );
+	var srv = injector.get('srvInfo');
+	srv.doGetGames(functionResponseCheck);
+    setTimeout(
+		function() {
+			start();
+		},
+		100);
+});
 
+asyncTest( "service doGetGame", function() {
+    expect( 1 );
+	var srv = injector.get('srvInfo');
+	srv.doGetGame(functionResponseCheck);
+    setTimeout(
+		function() {
+			start();
+		},
+		100);
+});
 
+asyncTest( "service doGetPlayerInfo", function() {
+    expect( 1 );
+	var srv = injector.get('srvInfo');
+	srv.doGetPlayerInfo(functionResponseCheck);
+    setTimeout(
+		function() {
+			start();
+		},
+		100);
+});
 
+asyncTest( "service playerLeft", function() {
+    expect( 1 );
+	var srv = injector.get('srvInfo');
+	srv.playerLeft(functionResponseCheck);
+    setTimeout(
+		function() {
+			start();
+		},
+		100);
+});

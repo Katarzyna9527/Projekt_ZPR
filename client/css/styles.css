@@ -22,6 +22,8 @@ body {
     padding: 0px;
     font-family: 'Noto Sans', sans-serif;
 	font-size: 100.01%;
+	height: 100%;
+	width: 100%;
 }
 
 #icons_ul {
@@ -153,4 +155,8 @@ body {
 
 .game_won_false {
 	color: darkred;
+}
+
+.time_left_true,.time_left_false {
+	opacity: 0;
 }

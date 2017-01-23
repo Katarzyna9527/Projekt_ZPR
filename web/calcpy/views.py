@@ -12,14 +12,21 @@ class Player:
 	def __init__(self, name, token):
 		self.name = name
 		self.token = token
+		self.wants_replay = False
 
 class GameList:
 	cid = 1
 	games = {}
 
-def getColors(p_isblue):
-	cdict = {True: Color.BLUE, False: Color.PINK}
-	return cdict[p_isblue], cdict[p_isblue == False]
+def getColor(game, token):
+	for c in [Color.BLUE, Color.PINK]:
+		if game["players"][c] is not None:
+			if game["players"][c].token == token:
+				return c
+	return None
+
+def opositeColor(color):
+	return {Color.BLUE: Color.PINK, Color.PINK: Color.BLUE}[color]
 
 def getToken(password, name):
 	m = hashlib.md5()
@@ -140,34 +147,43 @@ def registerUser(params):
 
 
 def userMove(params):
-	print "Got move request, token: ",params["token"],", (x,y): (",params["x"],params["y"],") for game ",params["game"]
 	valid=False
 	x=int(params["x"])
 	y=int(params["y"])
 	name = params["game"]
 	L.l.acquire()
 	try:
-		if name in GameList.games.keys():
-			game = GameList.games[name]
-			player=params["token"]
-			if player not in [p.token for p in game["players"].values()]:
-				raise
-			(color, oponent_color) = getColors(player == game["players"]["blue"].token)
-			if game["game"].game.whichPlayerNow() == color:
-				m = Move(x, y, color)
-				if game["game"].game.checkMove(m):
-					game["game"].last_move_time = dt.datetime.now()
-					game["game"].game.executeMove(m)
-					valid = True
-					if game["game"].ships[oponent_color][x][y] == "up":
-						game["game"].shots[color][x][y]="hit"
-						game["game"].ships[oponent_color][x][y]="down"
-					else:
-						game["game"].shots[color][x][y] = "miss"
-						
+		game = GameList.games[name]
+		token = params["token"]
+		if token not in [player.token for player in game["players"].values()]:
+			raise
+		color = getColor(game, token)
+		if game["game"].game.whichPlayerNow() == color:
+			m = Move(x, y, color)
+			if game["game"].game.checkMove(m):
+				game["game"].last_move_time = dt.datetime.now()
+				game["game"].game.executeMove(m)
+				if game["game"].ships[opositeColor(color)][x][y] == "up":
+					game["game"].shots[color][x][y]="hit"
+					game["game"].ships[opositeColor(color)][x][y]="down"
+				else:
+					game["game"].shots[color][x][y] = "miss"
+				valid = True
 	finally:
 		L.l.release()
 		return { "valid": valid }
+
+def updatePlayerStats(game):
+	loser_login = game["players"][opositeColor(game["game"].winner)].name
+	winner_login = game["players"][game["game"].winner].name
+
+	conn=psycopg2.connect(database="mydb",user="mydb",password="mydb",host="127.0.0.1", port="5432")
+	cur=conn.cursor()
+	cur.execute(("UPDATE game_users SET wins = wins + 1 WHERE LOGIN = \'{}\'").format(winner_login))
+	conn.commit()
+	cur.execute(("UPDATE game_users SET loses = loses + 1 WHERE LOGIN = \'{}\'").format(loser_login))
+	conn.commit()
+	conn.close()
 
 def getBoards(params): # uwaga odwrocone osie (x/y)
 	name = params["game"]
@@ -177,66 +193,59 @@ def getBoards(params): # uwaga odwrocone osie (x/y)
 	shots=None
 	turn=False
 	time_left="-"
-	player = params["token"]
+	token = params["token"]
 	L.l.acquire()
 	try:
-		if name in GameList.games.keys():
-			game = GameList.games[name]
+		game = GameList.games[name]
+		if not game["game"].is_over:
 			for p in game["players"]:
 				if game["players"][p] is None:
 					game["game"].last_move_time = dt.datetime.now()
 					raise
-			if player not in [p.token for p in game["players"].values()]:
+			if token not in [p.token for p in game["players"].values()]:
 				raise
 
-			valid=True
+		color = getColor(game, token)
+		ships = game["game"].ships[color]
+		shots = game["game"].shots[color]
 
-			(color, oponent_color) = getColors(player == game["players"]["blue"].token)
-			ships = game["game"].ships[color]
-			shots = game["game"].shots[color]
+		valid=True
 
-			if game["game"].is_over:
-				winner = (game["game"].winner == color)
-				raise
+		if game["game"].is_over:
+			winner = (game["game"].winner == color)
+			raise
 
-			turning_player = game["game"].game.whichPlayerNow()
+		turning_player = game["game"].game.whichPlayerNow()
 
-			time_left = game["game"].last_move_time - dt.datetime.now() + dt.timedelta(seconds=30)
-			if time_left.seconds < 0 or time_left.seconds > 61:
-				time_left = "0.0"
-				winner = (color != turning_player)
-				game["game"].is_over = True
-				game["game"].winner = turning_player
-			else:
-				if turning_player == color:
-					turn = True
+		time_left = game["game"].last_move_time - dt.datetime.now() + dt.timedelta(seconds=30)
+		if time_left.seconds < 0 or time_left.seconds > 61:
+			time_left = "0.0"
+			game["game"].is_over = True
+			game["game"].winner = opositeColor(turning_player)
+			updatePlayerStats(game)
+			winner = (color == game["game"].winner)
+		else:
+			if turning_player == color:
+				turn = True
 
-				for c in [color, oponent_color]:
-					if game["game"].game.checkVictory(c) == True:
-						game["game"].is_over = True
-						game["game"].winner = c
-
-						winner_color = {Color.BLUE: "blue", Color.PINK: "pink"}[c]
-						loser_color = {"pink": "blue", "blue": "pink"}[winner_color]
-						loser_login = game["players"][loser_color].name
-						winner_login = game["players"][winner_color].name
-						winner = (game["players"][winner_color].token == player)
-
-						conn=psycopg2.connect(database="mydb",user="mydb",password="mydb",host="127.0.0.1", port="5432")
-						cur=conn.cursor()
-						cur.execute(("UPDATE game_users SET wins = wins + 1 WHERE LOGIN = \'{}\'").format(winner_login))
-						conn.commit()
-						cur.execute(("UPDATE game_users SET loses = loses + 1 WHERE LOGIN = \'{}\'").format(loser_login))
-						conn.commit()
-						conn.close()
-						break
+			for c in [color, opositeColor(color)]:
+				if game["game"].game.checkVictory(c) == True:
+					game["game"].is_over = True
+					game["game"].winner = c
+					updatePlayerStats(game)
+					winner = (game["game"].winner == color)
+					break
 	finally:
 		L.l.release()
 		return { "ships": ships, "shots": shots, "turn": turn, "winner": winner, "valid": valid, "time_left": str(time_left).split(".")[0] }
 
 def getGames(params):
-	games = [(game, GameList.games[game]["players"]["blue"].name) for game in GameList.games if (GameList.games[game]["players"]["pink"] is None and not GameList.games[game]["game"].is_over)]
-	return { "games": games }
+	L.l.acquire()
+	try:
+		games = [(game, GameList.games[game]["players"][Color.BLUE].name) for game in GameList.games if (GameList.games[game]["players"][Color.PINK] is None and not GameList.games[game]["game"].is_over)]
+	finally:
+		L.l.release()
+		return { "games": games }
 
 def getGame(params):
 	name = params['game']
@@ -246,14 +255,14 @@ def getGame(params):
 		if name == 'New Game':
 			name = 'Game '+str(GameList.cid)
 			GameList.cid += 1
-			GameList.games[name] = { "players": { 'blue': Player(params['login'], params['token']), 'pink': None }, 'game': GameStub() }
+			GameList.games[name] = { "players": { Color.BLUE: Player(params['login'], params['token']), Color.PINK: None }, 'game': GameStub() }
 			valid=True
 		elif name in GameList.games.keys():
 			game = GameList.games[name]
-			if game["players"]["blue"].token == params["token"]:
-				valid=True
-			elif game["players"]["pink"] is None:
-				game["players"]["pink"] = Player(params["login"], params["token"])
+			if game["game"].is_over:
+				pass
+			elif game["players"][Color.PINK] is None:
+				game["players"][Color.PINK] = Player(params["login"], params["token"])
 				valid=True
 				game["game"].last_move_time = dt.datetime.now()
 	finally:
@@ -270,9 +279,9 @@ def getPlayerInfo(params):
 		rows=cur.fetchall()
 		if len(rows)==0:
 			cur.execute('''CREATE TABLE GAME_USERS
-	       		(ID INT PRIMARY KEY    NOT NULL,
-	       		LOGIN          TEXT    NOT NULL,
-	       		PASSWORD_HASH  TEXT    NOT NULL,
+				(ID INT PRIMARY KEY    NOT NULL,
+				LOGIN          TEXT    NOT NULL,
+				PASSWORD_HASH  TEXT    NOT NULL,
 			WINS           INT     NOT NULL,
 			LOSES          INT     NOT NULL);''')
 			conn.commit()
@@ -281,8 +290,8 @@ def getPlayerInfo(params):
 		for row in rows:
 			if getToken(str(row[0]),str(row[1])) == params["token"]:
 				ratio=(float(row[2]))/(float(row[3])+float(row[2]))
-	finally:
 		conn.close()
+	finally:
 		L.l.release()
 		return { "win_ratio": ratio }
 
@@ -291,24 +300,40 @@ def onPlayerLeave(params):
 	game = params['game']
 	L.l.acquire()
 	try:
-		print "Player ",token," has left the game ",game,"."
 		if game not in GameList.games.keys():
-			raise
-		if (GameList.games[game]["game"].is_over):
-			for color in GameList.games[game]["players"]:
-				if GameList.games[game]["players"][color].token == token:
-					GameList.games[game]["players"][color] = None
-					break
+			pass
+		elif (GameList.games[game]["game"].is_over):
+			GameList.games[game]["players"][getColor(GameList.games[game], token)] = None
 		else:
-			for color in GameList.games[game]["players"]:
-				for color in ["blue", "pink"]:
-					if GameList.games[game]["players"][color] == None:
-						del GameList.games[game]
-
-				(color, oponent_color) = getColors(GameList.games[game]["players"]["blue"].token == token)
-				GameList.game[game]["game"].is_over = True
-				GameList.game[game]["game"].winner = oponent_color
-				GameList.game[game]["players"][{Color.BLUE: 'blue', Color.PINK: 'pink'}[color]] = None
+			if None in [GameList.games[game]["players"][color] for color in [Color.BLUE, Color.PINK]]:
+				del GameList.games[game]
+			else:
+				color = getColor(GameList.games[game], token)
+				GameList.games[game]["game"].is_over = True
+				GameList.games[game]["game"].winner = opositeColor(color)
+				updatePlayerStats(GameList.games[game])
+				GameList.games[game]["players"][color] = None
 	finally:
+		L.l.release()
+		return {}
+
+def onReplayRequest(params):
+	token = params['token']
+	game_name = params['game']
+	L.l.acquire()
+	try:
+		if game_name not in GameList.games.keys():
+			pass
+		elif (GameList.games[game]["game"].is_over):
+			game = GameList.games[game_name]
+			color = getColor(game, token)
+			if game["players"][opositeColor(color)] is None:
+				pass
+			else:
+				if game["players"][opositeColor(color)].wants_replay:
+					GameList.games[game_name] = { "players": { Color.BLUE: game["players"][color.BLUE], Color.PINK: game["players"][color.PINK] }, 'game': GameStub() }
+				else:
+					game["players"][color].wants_replay = True
+	finnaly:
 		L.l.release()
 		return {}

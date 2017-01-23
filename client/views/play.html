@@ -25,16 +25,15 @@
 </div>
 
 <div class="game_won_{{won}}">
-	<div ng-if="won === true"> Game won! Congratulations!</div>
-	<div ng-if="won === false"> Game lost! Keep trying!</div>
+	<div ng-if="won == true"> Game won! Congratulations!</div>
+	<div ng-if="won == false"> Game lost! Keep trying!</div>
 	<br>
 	<div> Your win rate is {{winrate}}</div>
+	<button class="login_button" ng-click="on_submit_replay()"> Replay </input>
 </div>
-<div class="time_left_div">
+<div class="time_left_{{won}}">
 	Time left: {{time_left}}
 </div>
 
-
 </div>
-
 </center>
